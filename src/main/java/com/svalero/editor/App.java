@@ -20,7 +20,7 @@ public class App extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        throw new UnsupportedOperationException("Unimplemented ");
+
     }
 
     public static void main(String[] args) {
