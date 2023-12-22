@@ -7,7 +7,7 @@ import javafx.stage.Stage;
 public class App extends Application {
     @Override
     public void init() throws Exception {
-        // TODO Borrar mensaje.
+        // TODO Delete message.
         System.out.println("Starting JavaFX Appplication");
         super.init();
     }
