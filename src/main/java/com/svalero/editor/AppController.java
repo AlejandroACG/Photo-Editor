@@ -7,13 +7,14 @@ import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.UUID;
 
 public class AppController implements Initializable {
-    @FXML
-    private Button btnApply;
     @FXML
     private TextField tfDestiny;
     @FXML
@@ -43,10 +44,48 @@ public class AppController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {}
 
     @FXML
-    private void launchEdit(ActionEvent event) {}
+    private void launchEdit(ActionEvent event) {
+        // TODO Change all instances of destiny to destination.
+        String originPath = tfOrigin.getText();
+        String destinyPath = tfDestiny.getText();
+        // TODO Code the actual filters.
+        if (originPath.isEmpty() || destinyPath.isEmpty()) {
+            // TODO Create an alert.
+            return;
+        }
 
-    @FXML
-    private void changeDestiny(ActionEvent event) {}
+        File initialFile = new File(originPath);
+        File destinationFolder = new File(destinyPath);
+
+        if (!destinationFolder.exists() || !destinationFolder.isDirectory()) {
+            // TODO Create an alert.
+            return;
+        }
+
+        if (isImage(initialFile)) {
+            // TODO Move code into a processImage method, but only after establishing what variables it'll need to recieve beforehand.
+            String extension = initialFile.getName().substring(initialFile.getName().lastIndexOf('.'));
+
+            File destinationFile;
+            do {
+                String uniqueFileName = UUID.randomUUID() + extension;
+                destinationFile = new File(destinationFolder, uniqueFileName);
+            } while (destinationFile.exists());
+
+            try {
+                // TODO This line won't work after the filters are implemented.
+                Files.copy(initialFile.toPath(), destinationFile.toPath());
+                // TODO Here goes the new TabPane instance.
+                // TODO May change the save function to only save when selected on the TabPane itself.
+            } catch (IOException e) {
+                // TODO Create Alert.
+            }
+        } else if (initialFile.isDirectory()) {
+            // TODO Code alternative for when a folder is selected instead of a file.
+        } else {
+            // TODO Create an Alert: the initial file was neither an image nor a folder.
+        }
+    }
 
     @FXML
     private void viewHistory(ActionEvent event) {}
