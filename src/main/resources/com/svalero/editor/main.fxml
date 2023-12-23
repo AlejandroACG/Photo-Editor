@@ -9,7 +9,7 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="563.0" prefWidth="947.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.svalero.editor.AppController">
    <children>
-      <TextField fx:id="tfDestiny" layoutX="29.0" layoutY="502.0" prefHeight="26.0" prefWidth="449.0" promptText="Default Path" />
+      <TextField fx:id="tfDestination" layoutX="29.0" layoutY="502.0" prefHeight="26.0" prefWidth="449.0" promptText="Default Path" />
       <Button fx:id="btnHistory" layoutX="36.0" layoutY="423.0" mnemonicParsing="false" onAction="#viewHistory" text="History" />
       <Label fx:id="lblSavePath" layoutX="37.0" layoutY="469.0" text="Save Path" />
       <TabPane fx:id="tpEdits" layoutX="30.0" layoutY="182.0" prefHeight="200.0" prefWidth="914.0" tabClosingPolicy="UNAVAILABLE" />
@@ -20,6 +20,6 @@
       <ChoiceBox fx:id="cb4" layoutX="550.0" layoutY="121.0" prefWidth="150.0" />
       <TextField fx:id="tfOrigin" layoutX="46.0" layoutY="64.0" prefHeight="30.0" prefWidth="630.0" promptText="Path to file" />
       <Button fx:id="btnBrowseOrigin" layoutX="694.0" layoutY="62.0" mnemonicParsing="false" onAction="#browseOrigin" styleClass="browse-button" text="📁" />
-      <Button fx:id="btnBrowseDestiny" layoutX="495.0" layoutY="499.0" mnemonicParsing="false" onAction="#browseDestiny" styleClass="browse-button" text="📁" />
+      <Button fx:id="btnBrowseDestination" layoutX="495.0" layoutY="499.0" mnemonicParsing="false" onAction="#browseDestination" styleClass="browse-button" text="📁" />
    </children>
 </AnchorPane>

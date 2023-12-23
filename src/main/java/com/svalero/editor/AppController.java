@@ -16,7 +16,7 @@ import java.util.UUID;
 
 public class AppController implements Initializable {
     @FXML
-    private TextField tfDestiny;
+    private TextField tfDestination;
     @FXML
     private Button btnHistory;
     @FXML
@@ -38,24 +38,23 @@ public class AppController implements Initializable {
     @FXML
     private Button btnBrowseOrigin;
     @FXML
-    private Button btnBrowseDestiny;
+    private Button btnBrowseDestination;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {}
 
     @FXML
     private void launchEdit(ActionEvent event) {
-        // TODO Change all instances of destiny to destination.
         String originPath = tfOrigin.getText();
-        String destinyPath = tfDestiny.getText();
+        String destinationPath = tfDestination.getText();
         // TODO Code the actual filters.
-        if (originPath.isEmpty() || destinyPath.isEmpty()) {
+        if (originPath.isEmpty() || destinationPath.isEmpty()) {
             // TODO Create an alert.
             return;
         }
 
         File initialFile = new File(originPath);
-        File destinationFolder = new File(destinyPath);
+        File destinationFolder = new File(destinationPath);
 
         if (!destinationFolder.exists() || !destinationFolder.isDirectory()) {
             // TODO Create an alert.
@@ -130,7 +129,7 @@ public class AppController implements Initializable {
     }
 
     @FXML
-    private void browseDestiny(ActionEvent event) {
+    private void browseDestination(ActionEvent event) {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Select Save Directory");
 
@@ -140,7 +139,7 @@ public class AppController implements Initializable {
         File selectedDirectory = directoryChooser.showDialog(null);
 
         if (selectedDirectory != null) {
-            tfDestiny.setText(selectedDirectory.getAbsolutePath());
+            tfDestination.setText(selectedDirectory.getAbsolutePath());
         }
     }
 }
