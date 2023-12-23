@@ -7,7 +7,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="563.0" prefWidth="947.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.svalero.editor.AppController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="563.0" prefWidth="947.0" styleClass="style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.svalero.editor.AppController">
    <children>
       <TextField fx:id="tfDestination" layoutX="29.0" layoutY="502.0" prefHeight="26.0" prefWidth="449.0" promptText="Default Path" />
       <Button fx:id="btnHistory" layoutX="36.0" layoutY="423.0" mnemonicParsing="false" onAction="#viewHistory" text="History" />
