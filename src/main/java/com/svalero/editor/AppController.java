@@ -2,6 +2,7 @@ package com.svalero.editor;
 import static com.svalero.editor.Utils.isImage;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
@@ -45,6 +46,7 @@ public class AppController implements Initializable {
 
     @FXML
     private void launchEdit(ActionEvent event) {
+        // TODO ¿Debería todo esto ser concurrente también? Probablemente hasta los browsers deberían serlo.
         String originPath = tfOrigin.getText();
         String destinationPath = tfDestination.getText();
         // TODO Code the actual filters.
@@ -62,20 +64,13 @@ public class AppController implements Initializable {
         }
 
         if (isImage(initialFile)) {
-            // TODO Move code into a processImage method, but only after establishing what variables it'll need to recieve beforehand.
-            String extension = initialFile.getName().substring(initialFile.getName().lastIndexOf('.'));
-
-            File destinationFile;
-            do {
-                String uniqueFileName = UUID.randomUUID() + extension;
-                destinationFile = new File(destinationFolder, uniqueFileName);
-            } while (destinationFile.exists());
-
             try {
-                // TODO This line won't work after the filters are implemented.
-                Files.copy(initialFile.toPath(), destinationFile.toPath());
-                // TODO Here goes the new TabPane instance.
-                // TODO May change the save function to only save when selected on the TabPane itself.
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("tabpane.fxml"));
+                // TODO Will need to feed the new controller something.
+                loader.setController(new EditController(initialFile, destinationFolder));
+                // TODO Customize tab names or take them out entirely.
+                tpEdits.getTabs().add(new Tab("Tab Name", loader.load()));
+
             } catch (IOException e) {
                 // TODO Create Alert.
             }
