@@ -22,7 +22,11 @@
     -fx-border-radius: 15;
     -fx-background-radius: 15;
     -fx-padding: 8 12;
-    -fx-font-weight: bold;
+}
+
+.button-undo-redo {
+    -fx-font-size: 100px;
+    -fx-padding: 1px;
 }
 
 .button:hover {
@@ -97,4 +101,16 @@
 
 .tab-pane .tab:hover {
     -fx-background-color: #d1d7ff;
+}
+
+.stack-pane {
+    -fx-border-color: #d1d7ff;
+    -fx-border-width: 2px;
+    -fx-border-radius: 5;
+}
+
+.progress-bar {
+    -fx-border-color: #d1d7ff;
+    -fx-border-width: 2px;
+    -fx-border-radius: 5;
 }
