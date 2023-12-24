@@ -1,6 +1,8 @@
 package com.svalero.editor;
 import static com.svalero.editor.Utils.isImage;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -74,7 +76,22 @@ public class AppController implements Initializable {
                 // TODO Create Alert.
             }
         } else if (initialFile.isDirectory()) {
-            // TODO Code alternative for when a folder is selected instead of a file.
+            File[] filesInDirectory = initialFile.listFiles(Utils::isImage);
+            if (filesInDirectory != null) {
+                for (File file : filesInDirectory) {
+                    if (isImage(file)) {
+                        try {
+                            FXMLLoader loader = new FXMLLoader(getClass().getResource("tabpane.fxml"));
+                            EditController editController = new EditController(file, destinationFolder);
+                            loader.setController(editController);
+                            // TODO Customize tab names or take them out entirely.
+                            tpEdits.getTabs().add(new Tab("Tab Name", loader.load()));
+                        } catch (IOException e) {
+                            // TODO Create Alert.
+                        }
+                    }
+                }
+            }
         } else {
             // TODO Create an Alert: the initial file was neither an image nor a folder.
         }
@@ -89,7 +106,6 @@ public class AppController implements Initializable {
         alert.setTitle("Selection Required");
         alert.setHeaderText("Choose an Option");
 
-        //TODO Change Alert type.
         ButtonType buttonTypeFile = new ButtonType("Select File");
         ButtonType buttonTypeDirectory = new ButtonType("Select Directory");
         ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
