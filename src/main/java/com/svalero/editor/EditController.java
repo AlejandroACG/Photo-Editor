@@ -39,6 +39,8 @@ public class EditController implements Initializable {
         } catch (IOException e) {
             // TODO Create Alert.
             throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 }

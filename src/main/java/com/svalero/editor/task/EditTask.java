@@ -9,9 +9,13 @@ public class EditTask extends Task<Integer> {
     private File initialFile;
     private File destinationFolder;
 
-    public EditTask(File initialFile, File destinationFolder) throws IOException {
+    public EditTask(File initialFile, File destinationFolder) throws IOException, InterruptedException {
         this.initialFile = initialFile;
         this.destinationFolder = destinationFolder;
+    }
+    @Override
+    protected Integer call() throws Exception {
+        Thread.sleep(10000);
 
         // TODO It'll need to get the filters in the right order.
         String extension = initialFile.getName().substring(initialFile.getName().lastIndexOf('.'));
@@ -26,9 +30,7 @@ public class EditTask extends Task<Integer> {
         Files.copy(initialFile.toPath(), destinationFile.toPath());
 
         // TODO May change the save function to only save when selected on the TabPane itself.
-    }
-    @Override
-    protected Integer call() throws Exception {
+
         return null;
     }
 }

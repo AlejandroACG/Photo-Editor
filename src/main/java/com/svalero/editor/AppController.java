@@ -1,5 +1,6 @@
 package com.svalero.editor;
 import static com.svalero.editor.Utils.isImage;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -10,10 +11,8 @@ import javafx.stage.FileChooser;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Files;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.UUID;
 
 public class AppController implements Initializable {
     @FXML
@@ -66,7 +65,7 @@ public class AppController implements Initializable {
         if (isImage(initialFile)) {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("tabpane.fxml"));
-                // TODO Will need to feed the new controller something.
+                // TODO Will need to feed the new controller something more.
                 loader.setController(new EditController(initialFile, destinationFolder));
                 // TODO Customize tab names or take them out entirely.
                 tpEdits.getTabs().add(new Tab("Tab Name", loader.load()));
@@ -90,6 +89,7 @@ public class AppController implements Initializable {
         alert.setTitle("Choose");
         alert.setContentText("What Are You Looking For?");
 
+        //TODO Change Alert type.
         ButtonType buttonTypeFile = new ButtonType("File");
         ButtonType buttonTypeDirectory = new ButtonType("Directory");
         ButtonType buttonTypeCancel = new ButtonType("Nothing", ButtonBar.ButtonData.CANCEL_CLOSE);
