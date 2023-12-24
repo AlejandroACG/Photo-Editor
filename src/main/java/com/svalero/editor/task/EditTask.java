@@ -6,10 +6,11 @@ import java.nio.file.Files;
 import java.util.UUID;
 
 public class EditTask extends Task<Integer> {
-    private File initialFile;
-    private File destinationFolder;
+    private final File initialFile;
+    private final File destinationFolder;
 
     public EditTask(File initialFile, File destinationFolder) throws IOException, InterruptedException {
+        // TODO It'll need to get the filters in the right order.
         this.initialFile = initialFile;
         this.destinationFolder = destinationFolder;
     }
@@ -17,7 +18,6 @@ public class EditTask extends Task<Integer> {
     protected Integer call() throws Exception {
         Thread.sleep(10000);
 
-        // TODO It'll need to get the filters in the right order.
         String extension = initialFile.getName().substring(initialFile.getName().lastIndexOf('.'));
 
         File destinationFile;

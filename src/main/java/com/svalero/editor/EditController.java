@@ -12,8 +12,8 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class EditController implements Initializable {
-    private File initialFile;
-    private File destinationFolder;
+    private final File initialFile;
+    private final File destinationFolder;
     @FXML
     private StackPane spImageContainer;
     @FXML

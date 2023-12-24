@@ -86,13 +86,13 @@ public class AppController implements Initializable {
     @FXML
     private void browseOrigin(ActionEvent event) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Choose");
-        alert.setContentText("What Are You Looking For?");
+        alert.setTitle("Selection Required");
+        alert.setHeaderText("Choose an Option");
 
         //TODO Change Alert type.
-        ButtonType buttonTypeFile = new ButtonType("File");
-        ButtonType buttonTypeDirectory = new ButtonType("Directory");
-        ButtonType buttonTypeCancel = new ButtonType("Nothing", ButtonBar.ButtonData.CANCEL_CLOSE);
+        ButtonType buttonTypeFile = new ButtonType("Select File");
+        ButtonType buttonTypeDirectory = new ButtonType("Select Directory");
+        ButtonType buttonTypeCancel = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
 
         alert.getButtonTypes().setAll(buttonTypeFile, buttonTypeDirectory, buttonTypeCancel);
 
