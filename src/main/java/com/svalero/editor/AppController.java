@@ -54,7 +54,6 @@ public class AppController implements Initializable {
         cb3.setDisable(true);
         cb4.setDisable(true);
 
-
         cb1.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             cb2.setDisable(newValue == null);
             if (newValue == null) {cb2.setValue(null);};
