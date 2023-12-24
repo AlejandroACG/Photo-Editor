@@ -43,7 +43,40 @@ public class AppController implements Initializable {
     private Button btnBrowseDestination;
 
     @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {}
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        ObservableList<String> choiceBoxOptions = FXCollections.observableArrayList("None", "Grayscale", "Invert Colors", "Increase Brightness", "Blur");
+        cb1.setItems(choiceBoxOptions);
+        cb2.setItems(choiceBoxOptions);
+        cb3.setItems(choiceBoxOptions);
+        cb4.setItems(choiceBoxOptions);
+
+        cb2.setDisable(true);
+        cb3.setDisable(true);
+        cb4.setDisable(true);
+
+
+        cb1.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            cb2.setDisable(newValue == null);
+            if (newValue == null) {cb2.setValue(null);};
+            if ("None".equals(newValue)) { cb1.setValue(null); }
+        });
+
+        cb2.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            cb3.setDisable(newValue == null);
+            if (newValue == null) {cb3.setValue(null);};
+            if ("None".equals(newValue)) { cb2.setValue(null); }
+        });
+
+        cb3.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            cb4.setDisable(newValue == null);
+            if (newValue == null) {cb4.setValue(null);};
+            if ("None".equals(newValue)) { cb3.setValue(null); }
+        });
+
+        cb4.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if ("None".equals(newValue)) { cb4.setValue(null); }
+        });
+    }
 
     @FXML
     private void launchEdit(ActionEvent event) {
