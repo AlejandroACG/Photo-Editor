@@ -44,7 +44,7 @@ public class EditTask extends Task<Integer> {
         this.ivInitialImage.setImage(new Image(new FileInputStream(initialFile)));
         updateMessage("Applying Filters... 0%");
 
-        String extension = initialFile.getName().substring(initialFile.getName().lastIndexOf('.'));
+        String extension = initialFile.getName().substring(initialFile.getName().lastIndexOf('.') + 1);
 
         // TODO Remove commentary marks after the Tasks are implemented for real.
         File resultFile;
@@ -64,13 +64,21 @@ public class EditTask extends Task<Integer> {
                 imageToShow = SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition), null);
                 this.ivEditedImage.setImage(imageToShow);
 
-            }/* else if (selectedFilter.equals("Invert Colors")) {
-                InvertColorsTask invertColorsTask = new InvertColorsTask(this.initialFile);
+            } else if (selectedFilter.equals("Invert Colors")) {
+                InvertColorsTask invertColorsTask = new InvertColorsTask(imageVersions.get(imageVersionsPosition));
+                pbProgress.progressProperty().bind(invertColorsTask.progressProperty());
+                invertColorsTask.messageProperty().addListener((observable, oldValue, newValue) -> lblProgressStatus.setText(newValue));
                 invertColorsTask.setOnSucceeded(workerStateEvent -> {
-                    this.initialFile = invertColorsTask.getValue();
+                    imageVersions.add(invertColorsTask.getValue());
+                    imageVersionsPosition++;
                 });
-                new Thread(invertColorsTask).start();
-            } else if (selectedFilter.equals("Increase Brightness")) {
+                Thread invertColorsThread = new Thread(invertColorsTask);
+                invertColorsThread.start();
+                invertColorsThread.join();
+                imageToShow = SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition), null);
+                this.ivEditedImage.setImage(imageToShow);
+
+            }/* else if (selectedFilter.equals("Increase Brightness")) {
                 IncreaseBrightnessTask increaseBrightnessTask = new IncreaseBrightnessTask(this.initialFile);
                 increaseBrightnessTask.setOnSucceeded(workerStateEvent -> {
                     this.initialFile = increaseBrightnessTask.getValue();
@@ -87,7 +95,7 @@ public class EditTask extends Task<Integer> {
         }
 
         do {
-            String uniqueFileName = UUID.randomUUID() + extension;
+            String uniqueFileName = UUID.randomUUID() + "." + extension;
             resultFile = new File(destinationFolder, uniqueFileName);
         } while (resultFile.exists());
         ImageIO.write(imageVersions.get(imageVersionsPosition), extension, resultFile);

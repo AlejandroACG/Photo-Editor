@@ -3,10 +3,10 @@ import javafx.concurrent.Task;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
-public class GrayscaleTask extends Task<BufferedImage> {
+public class InvertColorsTask extends Task<BufferedImage> {
     private final BufferedImage image;
 
-    public GrayscaleTask(BufferedImage image) {
+    public InvertColorsTask(BufferedImage image) {
         this.image = image;
     }
 
@@ -20,16 +20,18 @@ public class GrayscaleTask extends Task<BufferedImage> {
                 int green = color.getGreen();
                 int blue = color.getBlue();
 
-                int gray = (red + green + blue) / 3;
+                int invertedRed = 255 - red;
+                int invertedGreen = 255 - green;
+                int invertedBlue = 255 - blue;
 
-                Color newColor = new Color(gray, gray, gray);
+                Color newColor = new Color(invertedRed, invertedGreen, invertedBlue);
                 image.setRGB(x, y, newColor.getRGB());
             }
         }
         for (int i = 0; i < 100; i++) {
             Thread.sleep(100);
             updateProgress(i, 100);
-            updateMessage("Converting to Grayscale... " + i + "%");
+            updateMessage("Inverting Colors... " + i + "%");
         }
 
         return image;
