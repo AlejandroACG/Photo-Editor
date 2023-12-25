@@ -1,6 +1,5 @@
 package com.svalero.editor;
 import static com.svalero.editor.Utils.isImage;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -11,7 +10,6 @@ import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -20,6 +18,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class AppController implements Initializable {
+    // TODO Change Bundle for Batch
     @FXML
     private TextField tfDestination;
     @FXML
@@ -47,9 +46,10 @@ public class AppController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        // TODO Add X buttons.
         this.tpEdits.setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
 
-        ObservableList<String> choiceBoxOptions = FXCollections.observableArrayList("None", "Grayscale", "Invert Colors", "Increase Brightness", "Blur");
+        ObservableList<String> choiceBoxOptions = FXCollections.observableArrayList(" ", "Grayscale", "Invert Colors", "Increase Brightness", "Blur");
         cb1.setItems(choiceBoxOptions);
         cb2.setItems(choiceBoxOptions);
         cb3.setItems(choiceBoxOptions);
@@ -60,31 +60,37 @@ public class AppController implements Initializable {
         cb4.setDisable(true);
 
         cb1.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if ("None".equals(newValue)) { cb1.setValue(null); }
-            if (newValue == null) {
+            if (" ".equals(newValue) || newValue == null) {
+                cb1.setValue(null);
                 cb2.setValue(null);
                 cb2.setDisable(true);
-            };
+            } else {
+                cb2.setDisable(false);
+            }
         });
 
         cb2.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if ("None".equals(newValue)) { cb2.setValue(null); }
-            if (newValue == null) {
+            if (" ".equals(newValue) || newValue == null) {
+                cb2.setValue(null);
                 cb3.setValue(null);
                 cb3.setDisable(true);
-            };
+            } else {
+                cb3.setDisable(false);
+            }
         });
 
         cb3.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if ("None".equals(newValue)) { cb3.setValue(null); }
-            if (newValue == null) {
+            if (" ".equals(newValue) || newValue == null) {
+                cb3.setValue(null);
                 cb4.setValue(null);
                 cb4.setDisable(true);
-            };
+            } else {
+                cb4.setDisable(false);
+            }
         });
 
         cb4.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if ("None".equals(newValue)) { cb4.setValue(null); }
+            if (" ".equals(newValue)) cb4.setValue(null);
         });
     }
 
@@ -94,7 +100,7 @@ public class AppController implements Initializable {
         String originPath = tfOrigin.getText();
         String destinationPath = tfDestination.getText();
         // TODO Code the actual filters.
-        if (originPath.isEmpty() || destinationPath.isEmpty() || cb1 == null) {
+        if (originPath.isEmpty() || destinationPath.isEmpty() || cb1.getValue() == null) {
             // TODO Create an alert. Could split the error in three.
             return;
         }
@@ -167,7 +173,7 @@ public class AppController implements Initializable {
                 fileChooser.setTitle("Select File");
                 // TODO Configure initial directory. May need to create a variable with greater scope.
 
-                FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Image files", "*.png", "*.jpg", ".jpeg", "*.gif", "*.bmp");
+                FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Image files", "*.png", "*.jpg", ".jpeg", "*.bmp");
                 fileChooser.getExtensionFilters().add(filter);
 
                 File selectedFile = fileChooser.showOpenDialog(stage);

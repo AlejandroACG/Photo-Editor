@@ -5,12 +5,9 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -21,6 +18,9 @@ public class EditController implements Initializable {
     private final File destinationFolder;
     private File resultFile;
     private ArrayList<String> selectedFilters;
+    // TODO This has to receive the data from EditTask.
+    private ArrayList<String> imageVersions;
+    private Integer imageVersionsPosition;
     @FXML
     private StackPane spInitialContainer;
     @FXML
@@ -48,15 +48,12 @@ public class EditController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
-            EditTask editTask = new EditTask(this.initialFile, this.destinationFolder, this.selectedFilters, this.ivInitialImage, this.ivEditedImage);
-            pbProgress.progressProperty().bind(editTask.progressProperty());
+            EditTask editTask = new EditTask(this.initialFile, this.destinationFolder, this.selectedFilters,
+                    this.ivInitialImage, this.ivEditedImage, this.pbProgress, this.lblProgressStatus);
             editTask.setOnSucceeded(workerStateEvent -> {
                 // TODO Maybe change tab color when completed yet unfocused.
             });
-            editTask.messageProperty().addListener((observable, oldValue, newValue) -> {
-                lblProgressStatus.setText(newValue);
-            });
-
+            editTask.messageProperty().addListener((observable, oldValue, newValue) -> lblProgressStatus.setText(newValue));
             new Thread(editTask).start();
 
         } catch (IOException e) {
