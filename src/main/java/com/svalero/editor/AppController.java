@@ -13,6 +13,7 @@ import javafx.stage.FileChooser;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -28,13 +29,13 @@ public class AppController implements Initializable {
     @FXML
     private Button btnEdit;
     @FXML
-    private ChoiceBox cb1;
+    private ChoiceBox<String> cb1;
     @FXML
-    private ChoiceBox cb2;
+    private ChoiceBox<String> cb2;
     @FXML
-    private ChoiceBox cb3;
+    private ChoiceBox<String> cb3;
     @FXML
-    private ChoiceBox cb4;
+    private ChoiceBox<String> cb4;
     @FXML
     private TextField tfOrigin;
     @FXML
@@ -55,21 +56,27 @@ public class AppController implements Initializable {
         cb4.setDisable(true);
 
         cb1.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            cb2.setDisable(newValue == null);
-            if (newValue == null) {cb2.setValue(null);};
             if ("None".equals(newValue)) { cb1.setValue(null); }
+            if (newValue == null) {
+                cb2.setValue(null);
+                cb2.setDisable(true);
+            };
         });
 
         cb2.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            cb3.setDisable(newValue == null);
-            if (newValue == null) {cb3.setValue(null);};
             if ("None".equals(newValue)) { cb2.setValue(null); }
+            if (newValue == null) {
+                cb3.setValue(null);
+                cb3.setDisable(true);
+            };
         });
 
         cb3.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            cb4.setDisable(newValue == null);
-            if (newValue == null) {cb4.setValue(null);};
             if ("None".equals(newValue)) { cb3.setValue(null); }
+            if (newValue == null) {
+                cb4.setValue(null);
+                cb4.setDisable(true);
+            };
         });
 
         cb4.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -83,10 +90,16 @@ public class AppController implements Initializable {
         String originPath = tfOrigin.getText();
         String destinationPath = tfDestination.getText();
         // TODO Code the actual filters.
-        if (originPath.isEmpty() || destinationPath.isEmpty()) {
-            // TODO Create an alert.
+        if (originPath.isEmpty() || destinationPath.isEmpty() || cb1 == null) {
+            // TODO Create an alert. Could split the error in three.
             return;
         }
+
+        ArrayList<String> selectedFilters = new ArrayList<>();
+        selectedFilters.add(cb1.getValue());
+        if (cb2.getValue() != null) selectedFilters.add(cb2.getValue());
+        if (cb3.getValue() != null) selectedFilters.add(cb3.getValue());
+        if (cb4.getValue() != null) selectedFilters.add(cb4.getValue());
 
         File initialFile = new File(originPath);
         File destinationFolder = new File(destinationPath);
@@ -100,7 +113,7 @@ public class AppController implements Initializable {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("tabpane.fxml"));
                 // TODO Will need to feed the new controller something more.
-                loader.setController(new EditController(initialFile, destinationFolder));
+                loader.setController(new EditController(initialFile, destinationFolder, selectedFilters));
                 // TODO Customize tab names or take them out entirely.
                 tpEdits.getTabs().add(new Tab("Tab Name", loader.load()));
 
@@ -111,16 +124,14 @@ public class AppController implements Initializable {
             File[] filesInDirectory = initialFile.listFiles(Utils::isImage);
             if (filesInDirectory != null) {
                 for (File file : filesInDirectory) {
-                    if (isImage(file)) {
-                        try {
-                            FXMLLoader loader = new FXMLLoader(getClass().getResource("tabpane.fxml"));
-                            EditController editController = new EditController(file, destinationFolder);
-                            loader.setController(editController);
-                            // TODO Customize tab names or take them out entirely.
-                            tpEdits.getTabs().add(new Tab("Tab Name", loader.load()));
-                        } catch (IOException e) {
-                            // TODO Create Alert.
-                        }
+                    try {
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("tabpane.fxml"));
+                        EditController editController = new EditController(file, destinationFolder, selectedFilters);
+                        loader.setController(editController);
+                        // TODO Customize tab names or take them out entirely.
+                        tpEdits.getTabs().add(new Tab("Tab Name", loader.load()));
+                    } catch (IOException e) {
+                        // TODO Create Alert.
                     }
                 }
             }
