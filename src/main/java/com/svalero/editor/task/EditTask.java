@@ -44,7 +44,7 @@ public class EditTask extends Task<Integer> {
         this.ivInitialImage.setImage(new Image(new FileInputStream(initialFile)));
         updateMessage("Applying Filters... 0%");
 
-        String extension = initialFile.getName().substring(initialFile.getName().lastIndexOf('.') + 1);
+        String extension = initialFile.getName().substring(initialFile.getName().lastIndexOf('.'));
 
         // TODO Remove commentary marks after the Tasks are implemented for real.
         File resultFile;
