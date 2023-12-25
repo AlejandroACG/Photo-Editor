@@ -1,27 +1,37 @@
 package com.svalero.editor.task;
 import javafx.concurrent.Task;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
 
-public class EditTask extends Task<File> {
+public class EditTask extends Task<Integer> {
     private final File initialFile;
     private final File destinationFolder;
     private final ArrayList<String> selectedFilters;
+    private ImageView ivInitialImage;
+    private ImageView ivEditedImage;
 
-    public EditTask(File initialFile, File destinationFolder, ArrayList<String> selectedFilters) throws IOException, InterruptedException {
+    public EditTask(File initialFile, File destinationFolder, ArrayList<String> selectedFilters,
+                    ImageView ivInitialImage, ImageView ivEditedImage) throws IOException, InterruptedException {
         // TODO It'll need to get the filters in the right order.
         this.initialFile = initialFile;
         this.destinationFolder = destinationFolder;
         this.selectedFilters = selectedFilters;
+        this.ivInitialImage = ivInitialImage;
+        this.ivEditedImage = ivEditedImage;
     }
 
     @Override
-    protected File call() throws Exception {
-        Thread.sleep(10000);
+    protected Integer call() throws Exception {
+        this.ivInitialImage.setImage(new Image(new FileInputStream(initialFile)));
+        updateMessage("Applying Filters... 0%");
 
         String extension = initialFile.getName().substring(initialFile.getName().lastIndexOf('.'));
 
@@ -61,11 +71,20 @@ public class EditTask extends Task<File> {
             resultFile = new File(destinationFolder, uniqueFileName);
         } while (resultFile.exists());
 
+        for (int i=0; i < 100; i++) {
+            Thread.sleep(250);
+            updateProgress(i, 100);
+            updateMessage("Applying Filters... " + i + "%");
+        }
+
         // TODO This line must be changed after the filters are implemented.
         Files.copy(initialFile.toPath(), resultFile.toPath());
 
-        // TODO May change the save function to only save when selected on the TabPane itself.
+        this.ivEditedImage.setImage(new Image(new FileInputStream(resultFile)));
 
-        return resultFile;
+        // TODO May change the save function to only save when selected on the TabPane itself.
+        updateMessage("Filters applied successfully 100%");
+
+        return null;
     }
 }

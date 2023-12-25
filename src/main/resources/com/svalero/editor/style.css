@@ -110,7 +110,13 @@
 }
 
 .progress-bar {
+    -fx-background-color: grey;
     -fx-border-color: #d1d7ff;
     -fx-border-width: 2px;
     -fx-border-radius: 5;
 }
+
+.progress-bar .bar {
+    -fx-background-color: red;
+}
+

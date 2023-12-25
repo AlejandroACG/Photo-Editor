@@ -10,6 +10,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -45,6 +47,8 @@ public class AppController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        this.tpEdits.setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
+
         ObservableList<String> choiceBoxOptions = FXCollections.observableArrayList("None", "Grayscale", "Invert Colors", "Increase Brightness", "Blur");
         cb1.setItems(choiceBoxOptions);
         cb2.setItems(choiceBoxOptions);
@@ -157,6 +161,7 @@ public class AppController implements Initializable {
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent()) {
+            Stage stage = (Stage) this.btnBrowseOrigin.getScene().getWindow();
             if (result.get() == buttonTypeFile) {
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setTitle("Select File");
@@ -165,16 +170,18 @@ public class AppController implements Initializable {
                 FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Image files", "*.png", "*.jpg", ".jpeg", "*.gif", "*.bmp");
                 fileChooser.getExtensionFilters().add(filter);
 
-                File selectedFile = fileChooser.showOpenDialog(null);
+                File selectedFile = fileChooser.showOpenDialog(stage);
+
                 if (selectedFile != null && isImage(selectedFile)) {
                     tfOrigin.setText(selectedFile.getAbsolutePath());
                 }
+                // TODO Add failure message?
             } else if (result.get() == buttonTypeDirectory) {
                 DirectoryChooser directoryChooser = new DirectoryChooser();
                 directoryChooser.setTitle("Select Directory");
                 // TODO Configure initial directory. May need to create a variable with greater scope.
 
-                File selectedDirectory = directoryChooser.showDialog(null);
+                File selectedDirectory = directoryChooser.showDialog(stage);
                 if (selectedDirectory != null) {
                     tfOrigin.setText(selectedDirectory.getAbsolutePath());
                 }
@@ -186,11 +193,10 @@ public class AppController implements Initializable {
     private void browseDestination(ActionEvent event) {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Select Save Directory");
-
         // TODO Configure initial directory. May need to create a variable with greater scope.
-        // directoryChooser.setInitialDirectory(new File(System.getProperty("user.home")));
 
-        File selectedDirectory = directoryChooser.showDialog(null);
+        Stage stage = (Stage) this.btnBrowseDestination.getScene().getWindow();
+        File selectedDirectory = directoryChooser.showDialog(stage);
 
         if (selectedDirectory != null) {
             tfDestination.setText(selectedDirectory.getAbsolutePath());

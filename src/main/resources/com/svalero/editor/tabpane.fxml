@@ -11,7 +11,7 @@
       <Button fx:id="btnUndo" layoutX="461.0" layoutY="399.0" mnemonicParsing="false" prefHeight="129.0" prefWidth="129.0" styleClass="button-undo-redo" text="↺" />
       <Button fx:id="btnRedo" layoutX="654.0" layoutY="390.0" mnemonicParsing="false" prefHeight="129.0" prefWidth="129.0" styleClass="button-undo-redo" text="↻" />
       <ProgressBar fx:id="pbProgress" layoutX="67.0" layoutY="68.0" prefHeight="26.0" prefWidth="447.0" progress="0.0" />
-      <Label fx:id="lblProgressStatus" layoutX="550.0" layoutY="68.0" prefHeight="26.0" prefWidth="57.0" />
+      <Label fx:id="lblProgressStatus" layoutX="550.0" layoutY="68.0" prefHeight="26.0" prefWidth="308.0" />
       <StackPane fx:id="spInitialContainer" layoutX="67.0" layoutY="165.0" prefHeight="150.0" prefWidth="200.0" styleClass="stack-pane">
             <ImageView fx:id="ivInitialImage" fitHeight="360.0" fitWidth="333.0" pickOnBounds="true" preserveRatio="true" styleClass="stack-pane" />
       </StackPane>

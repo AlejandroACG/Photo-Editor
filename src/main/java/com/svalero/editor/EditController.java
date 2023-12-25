@@ -1,9 +1,7 @@
 package com.svalero.editor;
 import com.svalero.editor.task.EditTask;
-import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -50,17 +48,10 @@ public class EditController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
-            EditTask editTask = new EditTask(this.initialFile, this.destinationFolder, this.selectedFilters);
+            EditTask editTask = new EditTask(this.initialFile, this.destinationFolder, this.selectedFilters, this.ivInitialImage, this.ivEditedImage);
             pbProgress.progressProperty().bind(editTask.progressProperty());
             editTask.setOnSucceeded(workerStateEvent -> {
                 // TODO Maybe change tab color when completed yet unfocused.
-                this.resultFile = editTask.getValue();
-                try {
-                    ivInitialImage.setImage(new Image(new FileInputStream(initialFile)));
-                    ivEditedImage.setImage(new Image(new FileInputStream(resultFile)));
-                } catch (FileNotFoundException e) {
-                    throw new RuntimeException(e);
-                }
             });
             editTask.messageProperty().addListener((observable, oldValue, newValue) -> {
                 lblProgressStatus.setText(newValue);
