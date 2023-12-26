@@ -78,20 +78,34 @@ public class EditTask extends Task<Integer> {
                 imageToShow = SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition), null);
                 this.ivEditedImage.setImage(imageToShow);
 
-            }/* else if (selectedFilter.equals("Increase Brightness")) {
-                IncreaseBrightnessTask increaseBrightnessTask = new IncreaseBrightnessTask(this.initialFile);
+            } else if (selectedFilter.equals("Increase Brightness")) {
+                IncreaseBrightnessTask increaseBrightnessTask = new IncreaseBrightnessTask(imageVersions.get(imageVersionsPosition));
+                pbProgress.progressProperty().bind(increaseBrightnessTask.progressProperty());
+                increaseBrightnessTask.messageProperty().addListener((observable, oldValue, newValue) -> lblProgressStatus.setText(newValue));
                 increaseBrightnessTask.setOnSucceeded(workerStateEvent -> {
-                    this.initialFile = increaseBrightnessTask.getValue();
+                    imageVersions.add(increaseBrightnessTask.getValue());
+                    imageVersionsPosition++;
                 });
-                new Thread(increaseBrightnessTask).start();
+                Thread invertColorsThread = new Thread(increaseBrightnessTask);
+                invertColorsThread.start();
+                invertColorsThread.join();
+                imageToShow = SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition), null);
+                this.ivEditedImage.setImage(imageToShow);
+
             } else if (selectedFilter.equals("Blur")) {
-                BlurTask blurTask = new BlurTask(this.initialFile);
+                BlurTask blurTask = new BlurTask(imageVersions.get(imageVersionsPosition));
+                pbProgress.progressProperty().bind(blurTask.progressProperty());
+                blurTask.messageProperty().addListener((observable, oldValue, newValue) -> lblProgressStatus.setText(newValue));
                 blurTask.setOnSucceeded(workerStateEvent -> {
-                    this.initialFile = blurTask.getValue();
+                    imageVersions.add(blurTask.getValue());
+                    imageVersionsPosition++;
                 });
-                new Thread(blurTask).start();
+                Thread invertColorsThread = new Thread(blurTask);
+                invertColorsThread.start();
+                invertColorsThread.join();
+                imageToShow = SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition), null);
+                this.ivEditedImage.setImage(imageToShow);
             }
-*/
         }
 
         do {

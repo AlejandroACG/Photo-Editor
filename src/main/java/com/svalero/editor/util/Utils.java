@@ -1,4 +1,4 @@
-package com.svalero.editor;
+package com.svalero.editor.util;
 import java.io.File;
 
 public class Utils {

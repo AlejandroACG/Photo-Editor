@@ -5,10 +5,10 @@ import java.awt.image.BufferedImage;
 
 import static com.svalero.editor.util.Constants.SLEEP_TIME;
 
-public class GrayscaleTask extends Task<BufferedImage> {
+public class IncreaseBrightnessTask extends Task<BufferedImage> {
     private final BufferedImage image;
 
-    public GrayscaleTask(BufferedImage image) {
+    public IncreaseBrightnessTask(BufferedImage image) {
         this.image = image;
     }
 
@@ -22,14 +22,18 @@ public class GrayscaleTask extends Task<BufferedImage> {
                 int green = color.getGreen();
                 int blue = color.getBlue();
 
-                int gray = (red + green + blue) / 3;
+                int increment = 30;
 
-                Color newColor = new Color(gray, gray, gray);
+                int brighterRed = Math.min(255, red + increment);
+                int brighterGreen = Math.min(255, green + increment);
+                int brighterBlue = Math.min(255, blue + increment);
+
+                Color newColor = new Color(brighterRed, brighterGreen, brighterBlue);
                 image.setRGB(x, y, newColor.getRGB());
             }
             Thread.sleep(SLEEP_TIME);
             updateProgress(y, image.getHeight());
-            updateMessage("Converting to Grayscale...");
+            updateMessage("Increasing Brightness...");
         }
 
         return image;

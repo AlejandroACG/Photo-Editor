@@ -1,5 +1,7 @@
 package com.svalero.editor;
-import static com.svalero.editor.Utils.isImage;
+import static com.svalero.editor.util.Utils.isImage;
+
+import com.svalero.editor.util.Utils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;

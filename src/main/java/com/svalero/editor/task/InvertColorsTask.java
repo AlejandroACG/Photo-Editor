@@ -3,6 +3,8 @@ import javafx.concurrent.Task;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+import static com.svalero.editor.util.Constants.SLEEP_TIME;
+
 public class InvertColorsTask extends Task<BufferedImage> {
     private final BufferedImage image;
 
@@ -27,11 +29,9 @@ public class InvertColorsTask extends Task<BufferedImage> {
                 Color newColor = new Color(invertedRed, invertedGreen, invertedBlue);
                 image.setRGB(x, y, newColor.getRGB());
             }
-        }
-        for (int i = 0; i < 100; i++) {
-            Thread.sleep(100);
-            updateProgress(i, 100);
-            updateMessage("Inverting Colors... " + i + "%");
+            Thread.sleep(SLEEP_TIME);
+            updateProgress(y, image.getHeight());
+            updateMessage("Inverting Colors...");
         }
 
         return image;
