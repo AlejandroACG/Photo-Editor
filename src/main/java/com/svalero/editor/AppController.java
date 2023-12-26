@@ -22,8 +22,8 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class AppController implements Initializable {
-    // TODO Change Bundle for Batch
     // TODO Add runLater to every place needed
+    private int maxTabs = 10;
     @FXML
     private TextField tfDestination;
     @FXML
@@ -48,6 +48,12 @@ public class AppController implements Initializable {
     private Button btnBrowseOrigin;
     @FXML
     private Button btnBrowseDestination;
+    @FXML
+    private TextField tfMaxTabs;
+    @FXML
+    private Button btnMaxTabs;
+    @FXML
+    private Label lblMaxTabs;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -125,30 +131,40 @@ public class AppController implements Initializable {
         }
 
         if (isImage(initialFile)) {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("tabpane.fxml"));
-                // TODO Will need to feed the new controller something more.
-                loader.setController(new EditController(initialFile, destinationFolder, selectedFilters));
-                // TODO Customize tab names or take them out entirely.
-                tpEdits.getTabs().add(new Tab("Tab Name", loader.load()));
+            if (tpEdits.getTabs().size() < maxTabs) {
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("tabpane.fxml"));
+                    // TODO Will need to feed the new controller something more.
+                    loader.setController(new EditController(initialFile, destinationFolder, selectedFilters));
+                    // TODO Customize tab names or take them out entirely.
+                    tpEdits.getTabs().add(new Tab("Tab Name", loader.load()));
 
-            } catch (IOException e) {
-                // TODO Create Alert.
+                } catch (IOException e) {
+                    // TODO Create Alert.
+                }
+            } else {
+                // TODO Create "Too Many Tabs" Alert.
             }
         } else if (initialFile.isDirectory()) {
             File[] filesInDirectory = initialFile.listFiles(Utils::isImage);
             if (filesInDirectory != null) {
-                for (File file : filesInDirectory) {
-                    try {
-                        FXMLLoader loader = new FXMLLoader(getClass().getResource("tabpane.fxml"));
-                        EditController editController = new EditController(file, destinationFolder, selectedFilters);
-                        loader.setController(editController);
-                        // TODO Customize tab names or take them out entirely.
-                        tpEdits.getTabs().add(new Tab("Tab Name", loader.load()));
-                    } catch (IOException e) {
-                        // TODO Create Alert.
+                if (tpEdits.getTabs().size() + filesInDirectory.length <= maxTabs) {
+                    for (File file : filesInDirectory) {
+                        try {
+                            FXMLLoader loader = new FXMLLoader(getClass().getResource("tabpane.fxml"));
+                            EditController editController = new EditController(file, destinationFolder, selectedFilters);
+                            loader.setController(editController);
+                            // TODO Customize tab names or take them out entirely.
+                            tpEdits.getTabs().add(new Tab("Tab Name", loader.load()));
+                        } catch (IOException e) {
+                            // TODO Create Alert.
+                        }
                     }
+                } else {
+                    // TODO Create "Too Many Tabs" Alert.
                 }
+            } else {
+                // TODO Create "No Images in Directory" Alert
             }
         } else {
             // TODO Create an Alert: the initial file was neither an image nor a folder.
@@ -231,6 +247,20 @@ public class AppController implements Initializable {
 
         if (selectedDirectory != null) {
             tfDestination.setText(selectedDirectory.getAbsolutePath());
+        }
+    }
+
+    @FXML
+    private void changeMaxTabs(ActionEvent event) {
+        if (tfMaxTabs.getText().matches("\\d+")) {
+            int maxTabsInt = Integer.parseInt(tfMaxTabs.getText());
+            if (maxTabsInt <= 99) {
+                maxTabs = maxTabsInt;
+            } else {
+                // TODO Create "No numbers above two digits" Alert.
+            }
+        } else {
+            // TODO Create "Not a Valid Number" Alert.
         }
     }
 }

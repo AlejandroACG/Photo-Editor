@@ -19,5 +19,8 @@
       <ChoiceBox fx:id="cb4" layoutX="550.0" layoutY="121.0" prefWidth="150.0" />
       <TextField fx:id="tfOrigin" layoutX="46.0" layoutY="64.0" prefHeight="30.0" prefWidth="630.0" promptText="Path to file(s)" />
       <Button fx:id="btnBrowseOrigin" layoutX="694.0" layoutY="62.0" mnemonicParsing="false" onAction="#browseOrigin" styleClass="browse-button" text="📁" />
-      <Button fx:id="btnBrowseDestination" layoutX="500.0" layoutY="714.0" mnemonicParsing="false" onAction="#browseDestination" styleClass="browse-button" text="📁" />
+      <Button fx:id="btnBrowseDestination" layoutX="497.0" layoutY="715.0" mnemonicParsing="false" onAction="#browseDestination" styleClass="browse-button" text="📁" />
+   <TextField fx:id="tfMaxTabs" layoutX="576.0" layoutY="717.0" prefHeight="36.0" prefWidth="62.0" text="10" />
+   <Button fx:id="btnMaxTabs" layoutX="652.0" layoutY="715.0" mnemonicParsing="false" onAction="#changeMaxTabs" text="Apply" />
+   <Label fx:id="lblMaxTabs" layoutX="585.0" layoutY="684.0" prefHeight="20.0" prefWidth="214.0" text="Max Number of Processes" />
 </AnchorPane>
