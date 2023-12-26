@@ -168,6 +168,8 @@ public class AppController implements Initializable {
 
             Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
             stage.setResizable(true);
+            stage.setMinHeight(460);
+            stage.setMinWidth(615);
             stage.setOnCloseRequest(e -> stage.hide());
 
             dialog.showAndWait();
