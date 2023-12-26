@@ -1,6 +1,5 @@
 package com.svalero.editor;
 import static com.svalero.editor.util.Utils.isImage;
-
 import com.svalero.editor.util.Utils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -9,9 +8,12 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.layout.Pane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.stage.Window;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -21,6 +23,7 @@ import java.util.ResourceBundle;
 
 public class AppController implements Initializable {
     // TODO Change Bundle for Batch
+    // TODO Add runLater to every place needed
     @FXML
     private TextField tfDestination;
     @FXML
@@ -153,7 +156,25 @@ public class AppController implements Initializable {
     }
 
     @FXML
-    private void viewHistory(ActionEvent event) {}
+    private void viewHistory(ActionEvent event) {
+        Dialog<Void> dialog = null;
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("history.fxml"));
+            loader.setController(new HistoryController());
+
+            dialog = new Dialog<>();
+            dialog.setTitle("History");
+            dialog.getDialogPane().setContent(loader.load());
+
+            Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+            stage.setResizable(true);
+            stage.setOnCloseRequest(e -> stage.hide());
+
+            dialog.showAndWait();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @FXML
     private void browseOrigin(ActionEvent event) {

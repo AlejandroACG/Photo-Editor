@@ -8,9 +8,7 @@ import static com.svalero.editor.util.Constants.SLEEP_TIME;
 public class BlurTask extends Task<BufferedImage> {
     private final BufferedImage image;
 
-    public BlurTask(BufferedImage image) {
-        this.image = image;
-    }
+    public BlurTask(BufferedImage image) { this.image = image; }
 
     @Override
     protected BufferedImage call() throws Exception {

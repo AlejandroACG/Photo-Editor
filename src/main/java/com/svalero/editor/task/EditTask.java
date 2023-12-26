@@ -9,7 +9,10 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -23,6 +26,7 @@ public class EditTask extends Task<Integer> {
     private final ImageView ivEditedImage;
     private final ProgressBar pbProgress;
     private final Label lblProgressStatus;
+    private final File historyFile = new File("History.txt");
 
     public EditTask(File initialFile, File destinationFolder, ArrayList<String> selectedFilters,
                     ImageView ivInitialImage, ImageView ivEditedImage, ProgressBar pbProgress,
@@ -114,6 +118,29 @@ public class EditTask extends Task<Integer> {
         } while (resultFile.exists());
         ImageIO.write(imageVersions.get(imageVersionsPosition), extension, resultFile);
 
+        if (!historyFile.exists()) {
+            try {
+                historyFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        String selectedFiltersString = "";
+        for (String selectedFilter : selectedFilters) {
+            selectedFiltersString = selectedFiltersString + selectedFilter + " -> ";
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedDateTime = now.format(formatter);
+
+        try (FileWriter writer = new FileWriter("History.txt", true)) {
+            // TODO Add resultFile's name after we change the naming convention. Should also change initialFile.name, since that'll only be true the first turn of the loop.
+            writer.write(formattedDateTime + ": " + initialFile.getName() + " -> " + selectedFiltersString + resultFile.getName() + "\n");
+        } catch (IOException e) {
+            e.printStackTrace(); // Maneja la excepción aquí
+        }
 
         // TODO Change naming convention to "_gray.png", etc.
         //  Take note of: String outputName = inputPath.substring(0, intputPath.length() - 4) + "_gray.png";
