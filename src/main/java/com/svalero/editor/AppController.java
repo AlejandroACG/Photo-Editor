@@ -8,12 +8,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.layout.Pane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.stage.Window;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -23,7 +20,7 @@ import java.util.ResourceBundle;
 
 public class AppController implements Initializable {
     // TODO Add runLater to every place needed
-    private int maxTabs = 10;
+    private int maxTabs;
     @FXML
     private TextField tfDestination;
     @FXML
@@ -58,6 +55,7 @@ public class AppController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // TODO Add X buttons.
+        this.maxTabs = Integer.parseInt(tfMaxTabs.getText());
         this.tpEdits.setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
 
         ObservableList<String> choiceBoxOptions = FXCollections.observableArrayList(" ", "Grayscale", "Invert Colors", "Increase Brightness", "Blur");
