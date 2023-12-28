@@ -8,19 +8,24 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
+import java.util.UUID;
 
 public class EditController implements Initializable {
     private final File initialFile;
     private final File destinationFolder;
-    private File resultFile;
     private final ArrayList<String> selectedFilters;
     // TODO This has to receive the data from EditTask.
-    private ArrayList<String> imageVersions;
+    private ArrayList<BufferedImage> imageVersions;
     private Integer imageVersionsPosition;
     @FXML
     private ImageView ivInitialImage;
@@ -58,10 +63,12 @@ public class EditController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         spEditedContainer.setVisible(false);
         try {
-            EditTask editTask = new EditTask(this.initialFile, this.destinationFolder, this.selectedFilters,
-                    this.ivInitialImage, this.ivEditedImage, this.pbProgress, this.lblProgressStatus, this.spEditedContainer);
+            EditTask editTask = new EditTask(this.initialFile, this.selectedFilters, this.ivInitialImage,
+                    this.ivEditedImage, this.pbProgress, this.lblProgressStatus, this.spEditedContainer);
             editTask.setOnSucceeded(workerStateEvent -> {
                 // TODO Maybe change tab color when completed yet unfocused.
+                this.imageVersions = editTask.getValue();
+                this.imageVersionsPosition = imageVersions.size() - 1;
             });
             editTask.messageProperty().addListener((observable, oldValue, newValue) -> lblProgressStatus.setText(newValue));
             new Thread(editTask).start();
@@ -106,6 +113,27 @@ public class EditController implements Initializable {
 
     @FXML
     private void saveImage(ActionEvent event) {
+        String extension = initialFile.getName().substring(initialFile.getName().lastIndexOf('.') + 1);
+        File saveFile;
+        do {
+            String uniqueFileName = UUID.randomUUID() + "." + extension;
+            saveFile = new File(destinationFolder, uniqueFileName);
+        } while (saveFile.exists());
+        try {
+            ImageIO.write(imageVersions.get(imageVersionsPosition), extension, saveFile);
+        } catch (IOException e) {
+            // TODO Alert.
+            throw new RuntimeException(e);
+        }
 
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedDateTime = now.format(formatter);
+
+        try (FileWriter writer = new FileWriter("History.txt", true)) {
+            writer.write(formattedDateTime + ": " + initialFile.getName() + " -> " + saveFile.getName() + "\n");
+        } catch (IOException e) {
+            e.printStackTrace(); // Maneja la excepción aquí
+        }
     }
 }
