@@ -64,8 +64,7 @@ public class EditController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        btnUndo.setDisable(true);
-        btnRedo.setDisable(true);
+        disableButtons();
         spEditedContainer.setVisible(false);
 
         imageVersionsPosition.addListener((observable, oldValue, newValue) -> {
@@ -92,6 +91,7 @@ public class EditController implements Initializable {
                 // TODO Maybe change tab color when completed yet unfocused.
                 this.imageVersions = editTask.getValue();
                 this.imageVersionsPosition.set(this.imageVersions.size() - 1);
+                enableButtons();
             });
             editTask.messageProperty().addListener((observable, oldValue, newValue) -> lblProgressStatus.setText(newValue));
             new Thread(editTask).start();
@@ -113,7 +113,17 @@ public class EditController implements Initializable {
         }
         disableButtons();
         applyFilter("Grayscale");
+
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedDateTime = now.format(formatter);
+
+        try (FileWriter writer = new FileWriter("History.txt", true)) {
+            writer.write(formattedDateTime + ": " + initialFile.getName() + " -> Grayscale\n");
+        } catch (IOException e) {
+            e.printStackTrace(); // Maneja la excepción aquí
         }
+    }
 
     @FXML
     private void launchInvertColors(ActionEvent event) {
@@ -124,6 +134,16 @@ public class EditController implements Initializable {
         }
         disableButtons();
         applyFilter("Inverted Colors");
+
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedDateTime = now.format(formatter);
+
+        try (FileWriter writer = new FileWriter("History.txt", true)) {
+            writer.write(formattedDateTime + ": " + initialFile.getName() + " -> Invert Colors\n");
+        } catch (IOException e) {
+            e.printStackTrace(); // Maneja la excepción aquí
+        }
     }
 
     @FXML
@@ -135,6 +155,16 @@ public class EditController implements Initializable {
         }
         disableButtons();
         applyFilter("Increase Brightness");
+
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedDateTime = now.format(formatter);
+
+        try (FileWriter writer = new FileWriter("History.txt", true)) {
+            writer.write(formattedDateTime + ": " + initialFile.getName() + " -> Increase Brightness\n");
+        } catch (IOException e) {
+            e.printStackTrace(); // Maneja la excepción aquí
+        }
     }
 
     @FXML
@@ -146,6 +176,16 @@ public class EditController implements Initializable {
         }
         disableButtons();
         applyFilter("Blur");
+
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedDateTime = now.format(formatter);
+
+        try (FileWriter writer = new FileWriter("History.txt", true)) {
+            writer.write(formattedDateTime + ": " + initialFile.getName() + " -> Blur\n");
+        } catch (IOException e) {
+            e.printStackTrace(); // Maneja la excepción aquí
+        }
     }
 
     @FXML
@@ -191,6 +231,17 @@ public class EditController implements Initializable {
     private boolean confirmOverwrite() {
         Optional<ButtonType> result = alertOverwrite.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String formattedDateTime = now.format(formatter);
+
+            try (FileWriter writer = new FileWriter("History.txt", true)) {
+                writer.write(formattedDateTime + ": " + initialFile.getName() +
+                        " -> Undone edits: " + (imageVersions.size() - imageVersionsPosition.get()) + 1);
+            } catch (IOException e) {
+                e.printStackTrace(); // Maneja la excepción aquí
+            }
+
             imageVersions.subList(imageVersionsPosition.get() + 1, imageVersions.size()).clear();
             return true;
         }
