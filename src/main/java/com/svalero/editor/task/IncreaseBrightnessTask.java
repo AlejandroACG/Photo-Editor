@@ -1,15 +1,15 @@
 package com.svalero.editor.task;
+import com.svalero.editor.util.Utils;
 import javafx.concurrent.Task;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-
 import static com.svalero.editor.util.Constants.SLEEP_TIME;
 
 public class IncreaseBrightnessTask extends Task<BufferedImage> {
     private final BufferedImage image;
 
     public IncreaseBrightnessTask(BufferedImage image) {
-        this.image = image;
+        this.image = Utils.copyBufferedImage(image);
     }
 
     @Override

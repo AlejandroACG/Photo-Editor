@@ -1,4 +1,5 @@
 package com.svalero.editor.task;
+import com.svalero.editor.util.Utils;
 import javafx.concurrent.Task;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -9,7 +10,7 @@ public class InvertColorsTask extends Task<BufferedImage> {
     private final BufferedImage image;
 
     public InvertColorsTask(BufferedImage image) {
-        this.image = image;
+        this.image = Utils.copyBufferedImage(image);
     }
 
     @Override

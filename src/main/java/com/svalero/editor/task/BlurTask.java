@@ -1,26 +1,29 @@
 package com.svalero.editor.task;
+import com.svalero.editor.util.Utils;
 import javafx.concurrent.Task;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+import static com.svalero.editor.util.Constants.BLUR_INTENSITY;
 import static com.svalero.editor.util.Constants.SLEEP_TIME;
 
 public class BlurTask extends Task<BufferedImage> {
     private final BufferedImage image;
 
-    public BlurTask(BufferedImage image) { this.image = image; }
+    public BlurTask(BufferedImage image) {
+        this.image = Utils.copyBufferedImage(image);
+    }
 
     @Override
     protected BufferedImage call() throws Exception {
-        int blurIntensity = 2;
 
-        for (int y = blurIntensity; y < image.getHeight() - blurIntensity; y++) {
-            for (int x = blurIntensity; x < image.getWidth() - blurIntensity; x++) {
+        for (int y = BLUR_INTENSITY; y < image.getHeight() - BLUR_INTENSITY; y++) {
+            for (int x = BLUR_INTENSITY; x < image.getWidth() - BLUR_INTENSITY; x++) {
                 int totalRed = 0, totalGreen = 0, totalBlue = 0;
                 int count = 0;
 
-                for (int dy = -blurIntensity; dy <= blurIntensity; dy++) {
-                    for (int dx = -blurIntensity; dx <= blurIntensity; dx++) {
+                for (int dy = -BLUR_INTENSITY; dy <= BLUR_INTENSITY; dy++) {
+                    for (int dx = -BLUR_INTENSITY; dx <= BLUR_INTENSITY; dx++) {
                         Color color = new Color(image.getRGB(x + dx, y + dy));
                         totalRed += color.getRed();
                         totalGreen += color.getGreen();

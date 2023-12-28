@@ -1,4 +1,5 @@
 package com.svalero.editor.task;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.control.Label;
@@ -9,7 +10,6 @@ import javafx.scene.layout.StackPane;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -21,33 +21,29 @@ public class EditTask extends Task<ArrayList<BufferedImage>> {
     private final ArrayList<String> selectedFilters;
     private final ArrayList<BufferedImage> imageVersions = new ArrayList<>();
     private Integer imageVersionsPosition;
-    private final ImageView ivInitialImage;
-    private final ImageView ivEditedImage;
     private final ProgressBar pbProgress;
     private final Label lblProgressStatus;
     private final File historyFile = new File("History.txt");
     private final StackPane spEditedContainer;
+    private final ImageView ivEditedImage;
 
-    public EditTask(File initialFile, ArrayList<String> selectedFilters, ImageView ivInitialImage,
-                    ImageView ivEditedImage, ProgressBar pbProgress, Label lblProgressStatus,
-                    StackPane spEditedContainer) throws IOException, InterruptedException {
+    public EditTask(File initialFile, ArrayList<String> selectedFilters, ProgressBar pbProgress,
+                    Label lblProgressStatus, StackPane spEditedContainer, ImageView ivEditedImage)
+            throws IOException, InterruptedException {
         this.initialFile = initialFile;
         this.selectedFilters = selectedFilters;
         this.imageVersions.add(ImageIO.read(initialFile));
         this.imageVersionsPosition = 0;
-        this.ivInitialImage = ivInitialImage;
-        this.ivEditedImage = ivEditedImage;
         this.pbProgress = pbProgress;
         this.lblProgressStatus = lblProgressStatus;
         this.spEditedContainer = spEditedContainer;
+        this.ivEditedImage = ivEditedImage;
     }
 
     @Override
     protected ArrayList<BufferedImage> call() throws Exception {
-        this.ivInitialImage.setImage(new Image(new FileInputStream(initialFile)));
         updateMessage("Applying Filters...");
 
-        Image imageToShow;
         for (String selectedFilter : selectedFilters) {
             if (selectedFilter.equals("Grayscale")) {
                 GrayscaleTask grayscaleTask = new GrayscaleTask(imageVersions.get(imageVersionsPosition));
@@ -56,12 +52,12 @@ public class EditTask extends Task<ArrayList<BufferedImage>> {
                 grayscaleTask.setOnSucceeded(workerStateEvent -> {
                     imageVersions.add(grayscaleTask.getValue());
                     imageVersionsPosition++;
+                    Image imageToShow = SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition), null);
+                    Platform.runLater(() -> this.ivEditedImage.setImage(imageToShow));
                 });
                 Thread grayscaleThread = new Thread(grayscaleTask);
                 grayscaleThread.start();
                 grayscaleThread.join();
-                imageToShow = SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition), null);
-                this.ivEditedImage.setImage(imageToShow);
 
             } else if (selectedFilter.equals("Invert Colors")) {
                 InvertColorsTask invertColorsTask = new InvertColorsTask(imageVersions.get(imageVersionsPosition));
@@ -70,12 +66,12 @@ public class EditTask extends Task<ArrayList<BufferedImage>> {
                 invertColorsTask.setOnSucceeded(workerStateEvent -> {
                     imageVersions.add(invertColorsTask.getValue());
                     imageVersionsPosition++;
+                    Image imageToShow = SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition), null);
+                    Platform.runLater(() -> this.ivEditedImage.setImage(imageToShow));
                 });
                 Thread invertColorsThread = new Thread(invertColorsTask);
                 invertColorsThread.start();
                 invertColorsThread.join();
-                imageToShow = SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition), null);
-                this.ivEditedImage.setImage(imageToShow);
 
             } else if (selectedFilter.equals("Increase Brightness")) {
                 IncreaseBrightnessTask increaseBrightnessTask = new IncreaseBrightnessTask(imageVersions.get(imageVersionsPosition));
@@ -84,12 +80,12 @@ public class EditTask extends Task<ArrayList<BufferedImage>> {
                 increaseBrightnessTask.setOnSucceeded(workerStateEvent -> {
                     imageVersions.add(increaseBrightnessTask.getValue());
                     imageVersionsPosition++;
+                    Image imageToShow = SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition), null);
+                    Platform.runLater(() -> this.ivEditedImage.setImage(imageToShow));
                 });
-                Thread invertColorsThread = new Thread(increaseBrightnessTask);
-                invertColorsThread.start();
-                invertColorsThread.join();
-                imageToShow = SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition), null);
-                this.ivEditedImage.setImage(imageToShow);
+                Thread increaseBrightnessThread = new Thread(increaseBrightnessTask);
+                increaseBrightnessThread.start();
+                increaseBrightnessThread.join();
 
             } else if (selectedFilter.equals("Blur")) {
                 BlurTask blurTask = new BlurTask(imageVersions.get(imageVersionsPosition));
@@ -98,12 +94,12 @@ public class EditTask extends Task<ArrayList<BufferedImage>> {
                 blurTask.setOnSucceeded(workerStateEvent -> {
                     imageVersions.add(blurTask.getValue());
                     imageVersionsPosition++;
+                    Image imageToShow = SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition), null);
+                    Platform.runLater(() -> this.ivEditedImage.setImage(imageToShow));
                 });
-                Thread invertColorsThread = new Thread(blurTask);
-                invertColorsThread.start();
-                invertColorsThread.join();
-                imageToShow = SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition), null);
-                this.ivEditedImage.setImage(imageToShow);
+                Thread blurThread = new Thread(blurTask);
+                blurThread.start();
+                blurThread.join();
             }
             spEditedContainer.setVisible(true);
         }
@@ -131,10 +127,6 @@ public class EditTask extends Task<ArrayList<BufferedImage>> {
             e.printStackTrace(); // Maneja la excepción aquí
         }
 
-        // TODO Change naming convention to "_gray.png", etc.
-        //  Take note of: String outputName = inputPath.substring(0, intputPath.length() - 4) + "_gray.png";
-
-        // TODO May change the save function to only save when selected on the TabPane itself.
         updateMessage("Filters applied successfully");
 
         return imageVersions;

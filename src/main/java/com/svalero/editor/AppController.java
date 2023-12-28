@@ -21,6 +21,7 @@ import java.util.ResourceBundle;
 public class AppController implements Initializable {
     // TODO Add runLater to every place needed
     // TODO If default save path doesn't exist, create it
+    // TODO Some catch hace Alerts but no proper depuration
     private int maxTabs;
     @FXML
     private TextField tfDestination;

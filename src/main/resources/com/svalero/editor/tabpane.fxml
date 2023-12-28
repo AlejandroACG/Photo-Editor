@@ -41,13 +41,13 @@
             <Button fx:id="btnBlur" mnemonicParsing="false" onAction="#launchBlur" text="Blur" />
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                <children>
-                  <Button fx:id="btnUndo" alignment="CENTER" mnemonicParsing="false" onAction="#redoEdit" prefHeight="50.0" prefWidth="50.0" styleClass="button-undo-redo" text="↺" />
+                  <Button fx:id="btnUndo" alignment="CENTER" mnemonicParsing="false" onAction="#undoEdit" prefHeight="50.0" prefWidth="50.0" styleClass="button-undo-redo" text="↺" />
                   <Button fx:id="btnSave" mnemonicParsing="false" onAction="#saveImage" prefHeight="60.0" prefWidth="60.0" text="💾">
                      <font>
                         <Font size="28.0" />
                      </font>
                   </Button>
-                  <Button fx:id="btnRedo" alignment="CENTER" mnemonicParsing="false" onAction="#undoEdit" prefHeight="50.0" prefWidth="50.0" styleClass="button-undo-redo" text="↻">
+                  <Button fx:id="btnRedo" alignment="CENTER" mnemonicParsing="false" onAction="#redoEdit" prefHeight="50.0" prefWidth="50.0" styleClass="button-undo-redo" text="↻">
                      <font>
                         <Font size="10.0" />
                      </font>
