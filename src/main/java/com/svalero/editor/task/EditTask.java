@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.concurrent.CompletableFuture;
 
 public class EditTask extends Task<ArrayList<BufferedImage>> {
     private final File initialFile;
@@ -45,64 +46,34 @@ public class EditTask extends Task<ArrayList<BufferedImage>> {
         updateMessage("Applying Filters...");
 
         for (String selectedFilter : selectedFilters) {
+            Task<BufferedImage> filterTask;
             if (selectedFilter.equals("Grayscale")) {
-                GrayscaleTask grayscaleTask = new GrayscaleTask(imageVersions.get(imageVersionsPosition));
-                pbProgress.progressProperty().bind(grayscaleTask.progressProperty());
-                grayscaleTask.messageProperty().addListener((observable, oldValue, newValue) -> lblProgressStatus.setText(newValue));
-                grayscaleTask.setOnSucceeded(workerStateEvent -> {
-                    imageVersions.add(grayscaleTask.getValue());
-                    imageVersionsPosition++;
-                    Image imageToShow = SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition), null);
-                    Platform.runLater(() -> this.ivEditedImage.setImage(imageToShow));
-                });
-                Thread grayscaleThread = new Thread(grayscaleTask);
-                grayscaleThread.start();
-                grayscaleThread.join();
-
+                filterTask = new GrayscaleTask(imageVersions.get(imageVersionsPosition));
             } else if (selectedFilter.equals("Invert Colors")) {
-                InvertColorsTask invertColorsTask = new InvertColorsTask(imageVersions.get(imageVersionsPosition));
-                pbProgress.progressProperty().bind(invertColorsTask.progressProperty());
-                invertColorsTask.messageProperty().addListener((observable, oldValue, newValue) -> lblProgressStatus.setText(newValue));
-                invertColorsTask.setOnSucceeded(workerStateEvent -> {
-                    imageVersions.add(invertColorsTask.getValue());
-                    imageVersionsPosition++;
-                    Image imageToShow = SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition), null);
-                    Platform.runLater(() -> this.ivEditedImage.setImage(imageToShow));
-                });
-                Thread invertColorsThread = new Thread(invertColorsTask);
-                invertColorsThread.start();
-                invertColorsThread.join();
-
+                filterTask = new InvertColorsTask(imageVersions.get(imageVersionsPosition));
             } else if (selectedFilter.equals("Increase Brightness")) {
-                IncreaseBrightnessTask increaseBrightnessTask = new IncreaseBrightnessTask(imageVersions.get(imageVersionsPosition));
-                pbProgress.progressProperty().bind(increaseBrightnessTask.progressProperty());
-                increaseBrightnessTask.messageProperty().addListener((observable, oldValue, newValue) -> lblProgressStatus.setText(newValue));
-                increaseBrightnessTask.setOnSucceeded(workerStateEvent -> {
-                    imageVersions.add(increaseBrightnessTask.getValue());
-                    imageVersionsPosition++;
-                    Image imageToShow = SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition), null);
-                    Platform.runLater(() -> this.ivEditedImage.setImage(imageToShow));
-                });
-                Thread increaseBrightnessThread = new Thread(increaseBrightnessTask);
-                increaseBrightnessThread.start();
-                increaseBrightnessThread.join();
-
-            } else if (selectedFilter.equals("Blur")) {
-                BlurTask blurTask = new BlurTask(imageVersions.get(imageVersionsPosition));
-                pbProgress.progressProperty().bind(blurTask.progressProperty());
-                blurTask.messageProperty().addListener((observable, oldValue, newValue) -> lblProgressStatus.setText(newValue));
-                blurTask.setOnSucceeded(workerStateEvent -> {
-                    imageVersions.add(blurTask.getValue());
-                    imageVersionsPosition++;
-                    Image imageToShow = SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition), null);
-                    Platform.runLater(() -> this.ivEditedImage.setImage(imageToShow));
-                });
-                Thread blurThread = new Thread(blurTask);
-                blurThread.start();
-                blurThread.join();
+                filterTask = new IncreaseBrightnessTask(imageVersions.get(imageVersionsPosition));
+            } else {
+                filterTask = new BlurTask(imageVersions.get(imageVersionsPosition));
             }
+
+            Platform.runLater(() -> pbProgress.progressProperty().bind(filterTask.progressProperty()));
+            filterTask.messageProperty().addListener((observable, oldValue, newValue) -> lblProgressStatus.setText(newValue));
+
+            filterTask.setOnSucceeded(workerStateEvent -> {
+                imageVersions.add(filterTask.getValue());
+                imageVersionsPosition++;
+                Image imageToShow = SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition), null);
+                Platform.runLater(() -> this.ivEditedImage.setImage(imageToShow));
+            });
+
+            Thread filterThread = new Thread(filterTask);
+            filterThread.start();
+            filterThread.join();
+
             spEditedContainer.setVisible(true);
         }
+        updateMessage("Filters applied successfully");
 
         if (!historyFile.exists()) {
             try {
@@ -124,10 +95,8 @@ public class EditTask extends Task<ArrayList<BufferedImage>> {
         try (FileWriter writer = new FileWriter("History.txt", true)) {
             writer.write(formattedDateTime + ": " + initialFile.getName() + selectedFiltersString + "\n");
         } catch (IOException e) {
-            e.printStackTrace(); // Maneja la excepción aquí
+            e.printStackTrace();
         }
-
-        updateMessage("Filters applied successfully");
 
         return imageVersions;
     }

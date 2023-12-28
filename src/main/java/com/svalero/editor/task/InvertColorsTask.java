@@ -1,5 +1,6 @@
 package com.svalero.editor.task;
 import com.svalero.editor.util.Utils;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -31,8 +32,11 @@ public class InvertColorsTask extends Task<BufferedImage> {
                 image.setRGB(x, y, newColor.getRGB());
             }
             Thread.sleep(SLEEP_TIME);
-            updateProgress(y, image.getHeight());
-            updateMessage("Inverting Colors... ");
+            int finalY = y;
+            Platform.runLater(() -> {
+                updateProgress(finalY, image.getHeight());
+                updateMessage("Inverting Colors... ");
+            });
         }
 
         return image;

@@ -92,6 +92,8 @@ public class EditController implements Initializable {
                 // TODO Maybe change tab color when completed yet unfocused.
                 this.imageVersions = editTask.getValue();
                 this.imageVersionsPosition.set(this.imageVersions.size() - 1);
+                // TODO DEBUGGING
+                System.out.println("\nArrayList size: " + imageVersions.size() + "\nPosition: " + imageVersionsPosition.get());
             });
             editTask.messageProperty().addListener((observable, oldValue, newValue) -> lblProgressStatus.setText(newValue));
             new Thread(editTask).start();
