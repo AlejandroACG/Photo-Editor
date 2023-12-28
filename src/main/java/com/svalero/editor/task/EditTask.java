@@ -27,6 +27,7 @@ public class EditTask extends Task<ArrayList<BufferedImage>> {
     private final File historyFile = new File("History.txt");
     private final StackPane spEditedContainer;
     private final ImageView ivEditedImage;
+    private final Object imageVersionsLock = new Object();
 
     public EditTask(File initialFile, ArrayList<String> selectedFilters, ProgressBar pbProgress,
                     Label lblProgressStatus, StackPane spEditedContainer, ImageView ivEditedImage)
@@ -66,10 +67,11 @@ public class EditTask extends Task<ArrayList<BufferedImage>> {
                 Image imageToShow = SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition), null);
                 Platform.runLater(() -> this.ivEditedImage.setImage(imageToShow));
             });
-
             Thread filterThread = new Thread(filterTask);
             filterThread.start();
             filterThread.join();
+
+            Thread.sleep(100);
 
             spEditedContainer.setVisible(true);
         }

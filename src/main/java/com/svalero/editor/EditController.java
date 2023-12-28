@@ -1,8 +1,8 @@
 package com.svalero.editor;
 import com.svalero.editor.task.*;
-import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.concurrent.Task;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -92,8 +92,6 @@ public class EditController implements Initializable {
                 // TODO Maybe change tab color when completed yet unfocused.
                 this.imageVersions = editTask.getValue();
                 this.imageVersionsPosition.set(this.imageVersions.size() - 1);
-                // TODO DEBUGGING
-                System.out.println("\nArrayList size: " + imageVersions.size() + "\nPosition: " + imageVersionsPosition.get());
             });
             editTask.messageProperty().addListener((observable, oldValue, newValue) -> lblProgressStatus.setText(newValue));
             new Thread(editTask).start();
@@ -109,121 +107,45 @@ public class EditController implements Initializable {
     @FXML
     private void launchGrayscale(ActionEvent event) {
         if (!(imageVersionsPosition.get() == imageVersions.size() - 1)) {
-            Optional<ButtonType> result = alertOverwrite.showAndWait();
-            if (result.isPresent() && result.get() == ButtonType.OK) {
-                imageVersions.subList(imageVersionsPosition.get() + 1, imageVersions.size()).clear();
-            } else {
+            if (!confirmOverwrite()) {
                 return;
             }
         }
-
         disableButtons();
-
-        GrayscaleTask grayscaleTask = new GrayscaleTask(imageVersions.get(imageVersionsPosition.get()));
-        pbProgress.progressProperty().bind(grayscaleTask.progressProperty());
-        grayscaleTask.messageProperty().addListener((observable, oldValue, newValue) -> lblProgressStatus.setText(newValue));
-        grayscaleTask.setOnSucceeded(workerStateEvent -> {
-            imageVersions.add(grayscaleTask.getValue());
-            imageVersionsPosition.set(imageVersionsPosition.get() + 1);
-
-            Image imageToShow = SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition.get()), null);
-            this.ivEditedImage.setImage(imageToShow);
-            lblProgressStatus.setText("Grayscale applied successfully");
-
-            enableButtons();
-        });
-        Thread grayscaleThread = new Thread(grayscaleTask);
-        grayscaleThread.start();
-    }
+        applyFilter("Grayscale");
+        }
 
     @FXML
     private void launchInvertColors(ActionEvent event) {
         if (!(imageVersionsPosition.get() == imageVersions.size() - 1)) {
-            Optional<ButtonType> result = alertOverwrite.showAndWait();
-            if (result.isPresent() && result.get() == ButtonType.OK) {
-                imageVersions.subList(imageVersionsPosition.get() + 1, imageVersions.size()).clear();
-            } else {
+            if (!confirmOverwrite()) {
                 return;
             }
         }
-
         disableButtons();
-
-        InvertColorsTask invertColorsTask = new InvertColorsTask(imageVersions.get(imageVersionsPosition.get()));
-        pbProgress.progressProperty().bind(invertColorsTask.progressProperty());
-        invertColorsTask.messageProperty().addListener((observable, oldValue, newValue) -> lblProgressStatus.setText(newValue));
-        invertColorsTask.setOnSucceeded(workerStateEvent -> {
-            imageVersions.add(invertColorsTask.getValue());
-            imageVersionsPosition.set(imageVersionsPosition.get() + 1);
-
-            Image imageToShow = SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition.get()), null);
-            this.ivEditedImage.setImage(imageToShow);
-            lblProgressStatus.setText("Colors Inverted successfully");
-
-            enableButtons();
-        });
-        Thread invertColorsThread = new Thread(invertColorsTask);
-        invertColorsThread.start();
+        applyFilter("Inverted Colors");
     }
 
     @FXML
     private void launchIncreaseBrightness(ActionEvent event) {
         if (!(imageVersionsPosition.get() == imageVersions.size() - 1)) {
-            Optional<ButtonType> result = alertOverwrite.showAndWait();
-            if (result.isPresent() && result.get() == ButtonType.OK) {
-                imageVersions.subList(imageVersionsPosition.get() + 1, imageVersions.size()).clear();
-            } else {
+            if (!confirmOverwrite()) {
                 return;
             }
         }
-
         disableButtons();
-
-        IncreaseBrightnessTask increaseBrightnessTask = new IncreaseBrightnessTask(imageVersions.get(imageVersionsPosition.get()));
-        pbProgress.progressProperty().bind(increaseBrightnessTask.progressProperty());
-        increaseBrightnessTask.messageProperty().addListener((observable, oldValue, newValue) -> lblProgressStatus.setText(newValue));
-        increaseBrightnessTask.setOnSucceeded(workerStateEvent -> {
-            imageVersions.add(increaseBrightnessTask.getValue());
-            imageVersionsPosition.set(imageVersionsPosition.get() + 1);
-
-            Image imageToShow = SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition.get()), null);
-            this.ivEditedImage.setImage(imageToShow);
-            lblProgressStatus.setText("Brightness increased successfully");
-
-            enableButtons();
-        });
-        Thread increaseBrightnessThread = new Thread(increaseBrightnessTask);
-        increaseBrightnessThread.start();
+        applyFilter("Increase Brightness");
     }
 
     @FXML
     private void launchBlur(ActionEvent event) {
         if (!(imageVersionsPosition.get() == imageVersions.size() - 1)) {
-            Optional<ButtonType> result = alertOverwrite.showAndWait();
-            if (result.isPresent() && result.get() == ButtonType.OK) {
-                imageVersions.subList(imageVersionsPosition.get() + 1, imageVersions.size()).clear();
-            } else {
+            if (!confirmOverwrite()) {
                 return;
             }
         }
-
         disableButtons();
-
-        BlurTask blurTask = new BlurTask(imageVersions.get(imageVersionsPosition.get()));
-        pbProgress.progressProperty().bind(blurTask.progressProperty());
-        blurTask.messageProperty().addListener((observable, oldValue, newValue) -> lblProgressStatus.setText(newValue));
-        blurTask.setOnSucceeded(workerStateEvent -> {
-            imageVersions.add(blurTask.getValue());
-            imageVersionsPosition.set(imageVersionsPosition.get() + 1);
-
-            Image imageToShow = SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition.get()), null);
-            this.ivEditedImage.setImage(imageToShow);
-            lblProgressStatus.setText("Blur applied successfully");
-
-            enableButtons();
-        });
-        Thread blurThread = new Thread(blurTask);
-        blurThread.start();
+        applyFilter("Blur");
     }
 
     @FXML
@@ -264,6 +186,43 @@ public class EditController implements Initializable {
         } catch (IOException e) {
             e.printStackTrace(); // Maneja la excepción aquí
         }
+    }
+
+    private boolean confirmOverwrite() {
+        Optional<ButtonType> result = alertOverwrite.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            imageVersions.subList(imageVersionsPosition.get() + 1, imageVersions.size()).clear();
+            return true;
+        }
+        return false;
+    }
+
+    private void applyFilter(String filter) {
+        Task<BufferedImage> filterTask;
+        System.out.println("Grayscale");
+        if (filter.equals("Grayscale")) {
+            filterTask = new GrayscaleTask(imageVersions.get(imageVersionsPosition.get()));
+        } else if (filter.equals("Invert Colors")) {
+            filterTask = new InvertColorsTask(imageVersions.get(imageVersionsPosition.get()));
+        } else if (filter.equals("Increase Brightness")) {
+            filterTask = new IncreaseBrightnessTask(imageVersions.get(imageVersionsPosition.get()));
+        } else {
+            filterTask = new BlurTask(imageVersions.get(imageVersionsPosition.get()));
+        }
+
+        pbProgress.progressProperty().bind(filterTask.progressProperty());
+        filterTask.messageProperty().addListener((observable, oldValue, newValue) -> lblProgressStatus.setText(newValue));
+        filterTask.setOnSucceeded(workerStateEvent -> {
+            imageVersions.add(filterTask.getValue());
+            imageVersionsPosition.set(imageVersionsPosition.get() + 1);
+
+            Image imageToShow = SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition.get()), null);
+            this.ivEditedImage.setImage(imageToShow);
+            lblProgressStatus.setText("Filter applied successfully");
+
+            enableButtons();
+        });
+        new Thread(filterTask).start();
     }
 
     private void disableButtons() {
