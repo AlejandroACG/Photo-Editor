@@ -18,6 +18,9 @@ public class App extends Application {
         loader.setController(new AppController());
         Scene scene = new Scene(loader.load());
         primaryStage.setScene(scene);
+        primaryStage.setMinWidth(940);
+        primaryStage.setMinHeight(690);
+        primaryStage.setResizable(false);
         primaryStage.show();
     }
 

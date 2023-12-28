@@ -29,7 +29,7 @@ public class GrayscaleTask extends Task<BufferedImage> {
             }
             Thread.sleep(SLEEP_TIME);
             updateProgress(y, image.getHeight());
-            updateMessage("Converting to Grayscale...");
+            updateMessage("Converting to Grayscale... ");
         }
 
         return image;

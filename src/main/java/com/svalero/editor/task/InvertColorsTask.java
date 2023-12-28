@@ -31,7 +31,7 @@ public class InvertColorsTask extends Task<BufferedImage> {
             }
             Thread.sleep(SLEEP_TIME);
             updateProgress(y, image.getHeight());
-            updateMessage("Inverting Colors...");
+            updateMessage("Inverting Colors... ");
         }
 
         return image;

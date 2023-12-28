@@ -33,7 +33,7 @@ public class IncreaseBrightnessTask extends Task<BufferedImage> {
             }
             Thread.sleep(SLEEP_TIME);
             updateProgress(y, image.getHeight());
-            updateMessage("Increasing Brightness...");
+            updateMessage("Increasing Brightness... ");
         }
 
         return image;

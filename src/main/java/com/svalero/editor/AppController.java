@@ -55,8 +55,9 @@ public class AppController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // TODO Add X buttons.
+        // TODO Add "No History" Alert when trying to view it but the file has been deleted.
+        // TODO Move Alerts to their own method and call them from there.
         this.maxTabs = Integer.parseInt(tfMaxTabs.getText());
-        this.tpEdits.setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
 
         ObservableList<String> choiceBoxOptions = FXCollections.observableArrayList(" ", "Grayscale", "Invert Colors", "Increase Brightness", "Blur");
         cb1.setItems(choiceBoxOptions);
@@ -105,12 +106,35 @@ public class AppController implements Initializable {
 
     @FXML
     private void launchEdit(ActionEvent event) {
-        // TODO ¿Debería todo esto ser concurrente también? Probablemente hasta los browsers deberían serlo.
         String originPath = tfOrigin.getText();
-        String destinationPath = tfDestination.getText();
-        // TODO Code the actual filters.
-        if (originPath.isEmpty() || destinationPath.isEmpty() || cb1.getValue() == null) {
-            // TODO Create an alert. Could split the error in three.
+        File initialFile = new File(originPath);
+        File destinationDirectory = new File(tfDestination.getText());
+
+
+        if (cb1.getValue() == null) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Error");
+            alert.setHeaderText("No Filter Selected");
+            alert.setContentText("Please select at least one filter.");
+            alert.showAndWait();
+            return;
+        }
+
+        if (originPath.isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Error");
+            alert.setHeaderText("No Valid Path to File(s)");
+            alert.setContentText("Please select a valid file or directory to edit.");
+            alert.showAndWait();
+            return;
+        }
+
+        if (!destinationDirectory.exists() || !destinationDirectory.isDirectory()) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Error");
+            alert.setHeaderText("No Valid Destination Directory");
+            alert.setContentText("Please select a valid directory to save the edits.");
+            alert.showAndWait();
             return;
         }
 
@@ -120,28 +144,26 @@ public class AppController implements Initializable {
         if (cb3.getValue() != null) selectedFilters.add(cb3.getValue());
         if (cb4.getValue() != null) selectedFilters.add(cb4.getValue());
 
-        File initialFile = new File(originPath);
-        File destinationFolder = new File(destinationPath);
-
-        if (!destinationFolder.exists() || !destinationFolder.isDirectory()) {
-            // TODO Create an alert.
-            return;
-        }
-
         if (isImage(initialFile)) {
             if (tpEdits.getTabs().size() < maxTabs) {
                 try {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("tabpane.fxml"));
-                    // TODO Will need to feed the new controller something more.
-                    loader.setController(new EditController(initialFile, destinationFolder, selectedFilters));
+                    loader.setController(new EditController(initialFile, destinationDirectory, selectedFilters));
                     // TODO Customize tab names or take them out entirely.
                     tpEdits.getTabs().add(new Tab("Tab Name", loader.load()));
-
                 } catch (IOException e) {
-                    // TODO Create Alert.
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Error");
+                    alert.setHeaderText("Error opening tab");
+                    alert.setContentText("New tab couldn't be opened: " + e.getMessage());
+                    alert.showAndWait();
                 }
             } else {
-                // TODO Create "Too Many Tabs" Alert.
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Error");
+                alert.setHeaderText("Too Many Tabs Open");
+                alert.setContentText("Close some tabs or set a bigger maximum number of processes.");
+                alert.showAndWait();
             }
         } else if (initialFile.isDirectory()) {
             File[] filesInDirectory = initialFile.listFiles(Utils::isImage);
@@ -150,16 +172,24 @@ public class AppController implements Initializable {
                     for (File file : filesInDirectory) {
                         try {
                             FXMLLoader loader = new FXMLLoader(getClass().getResource("tabpane.fxml"));
-                            EditController editController = new EditController(file, destinationFolder, selectedFilters);
+                            EditController editController = new EditController(file, destinationDirectory, selectedFilters);
                             loader.setController(editController);
                             // TODO Customize tab names or take them out entirely.
                             tpEdits.getTabs().add(new Tab("Tab Name", loader.load()));
                         } catch (IOException e) {
-                            // TODO Create Alert.
+                            Alert alert = new Alert(Alert.AlertType.ERROR);
+                            alert.setTitle("Error");
+                            alert.setHeaderText("Error opening tab");
+                            alert.setContentText("New tab couldn't be opened: " + e.getMessage());
+                            alert.showAndWait();
                         }
                     }
                 } else {
-                    // TODO Create "Too Many Tabs" Alert.
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Error");
+                    alert.setHeaderText("Too Many Tabs Open");
+                    alert.setContentText("Close some tabs or set a bigger maximum number of processes.");
+                    alert.showAndWait();
                 }
             } else {
                 // TODO Create "No Images in Directory" Alert
@@ -182,8 +212,8 @@ public class AppController implements Initializable {
 
             Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
             stage.setResizable(true);
-            stage.setMinHeight(460);
             stage.setMinWidth(615);
+            stage.setMinHeight(460);
             stage.setOnCloseRequest(e -> stage.hide());
 
             dialog.showAndWait();

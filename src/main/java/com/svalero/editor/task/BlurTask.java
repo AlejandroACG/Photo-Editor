@@ -12,13 +12,13 @@ public class BlurTask extends Task<BufferedImage> {
 
     @Override
     protected BufferedImage call() throws Exception {
-        for (int y = 1; y < image.getHeight() - 1; y++) {
-            for (int x = 1; x < image.getWidth() - 1; x++) {
+        for (int y = 2; y < image.getHeight() - 2; y++) {
+            for (int x = 2; x < image.getWidth() - 2; x++) {
                 int totalRed = 0, totalGreen = 0, totalBlue = 0;
                 int count = 0;
 
-                for (int dy = -1; dy <= 1; dy++) {
-                    for (int dx = -1; dx <= 1; dx++) {
+                for (int dy = -2; dy <= 2; dy++) {
+                    for (int dx = -2; dx <= 2; dx++) {
                         Color color = new Color(image.getRGB(x + dx, y + dy));
                         totalRed += color.getRed();
                         totalGreen += color.getGreen();
@@ -36,7 +36,7 @@ public class BlurTask extends Task<BufferedImage> {
             }
             Thread.sleep(SLEEP_TIME);
             updateProgress(y, image.getHeight());
-            updateMessage("Blurring...");
+            updateMessage("Blurring... ");
         }
 
         return image;

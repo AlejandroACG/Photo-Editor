@@ -5,6 +5,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -27,11 +29,11 @@ public class EditTask extends Task<Integer> {
     private final ProgressBar pbProgress;
     private final Label lblProgressStatus;
     private final File historyFile = new File("History.txt");
+    private final StackPane spEditedContainer;
 
     public EditTask(File initialFile, File destinationFolder, ArrayList<String> selectedFilters,
                     ImageView ivInitialImage, ImageView ivEditedImage, ProgressBar pbProgress,
-                    Label lblProgressStatus) throws IOException, InterruptedException {
-        // TODO It'll need to get the filters in the right order.
+                    Label lblProgressStatus, StackPane spEditedContainer) throws IOException, InterruptedException {
         this.initialFile = initialFile;
         this.destinationFolder = destinationFolder;
         this.selectedFilters = selectedFilters;
@@ -41,16 +43,16 @@ public class EditTask extends Task<Integer> {
         this.ivEditedImage = ivEditedImage;
         this.pbProgress = pbProgress;
         this.lblProgressStatus = lblProgressStatus;
+        this.spEditedContainer = spEditedContainer;
     }
 
     @Override
     protected Integer call() throws Exception {
         this.ivInitialImage.setImage(new Image(new FileInputStream(initialFile)));
-        updateMessage("Applying Filters... 0%");
+        updateMessage("Applying Filters...");
 
         String extension = initialFile.getName().substring(initialFile.getName().lastIndexOf('.') + 1);
 
-        // TODO Remove commentary marks after the Tasks are implemented for real.
         File resultFile;
         Image imageToShow;
         for (String selectedFilter : selectedFilters) {
@@ -110,6 +112,7 @@ public class EditTask extends Task<Integer> {
                 imageToShow = SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition), null);
                 this.ivEditedImage.setImage(imageToShow);
             }
+            spEditedContainer.setVisible(true);
         }
 
         do {
@@ -128,7 +131,7 @@ public class EditTask extends Task<Integer> {
 
         String selectedFiltersString = "";
         for (String selectedFilter : selectedFilters) {
-            selectedFiltersString = selectedFiltersString + selectedFilter + " -> ";
+            selectedFiltersString = selectedFiltersString + " -> " + selectedFilter;
         }
 
         LocalDateTime now = LocalDateTime.now();
@@ -137,7 +140,7 @@ public class EditTask extends Task<Integer> {
 
         try (FileWriter writer = new FileWriter("History.txt", true)) {
             // TODO Add resultFile's name after we change the naming convention. Should also change initialFile.name, since that'll only be true the first turn of the loop.
-            writer.write(formattedDateTime + ": " + initialFile.getName() + " -> " + selectedFiltersString + resultFile.getName() + "\n");
+            writer.write(formattedDateTime + ": " + initialFile.getName() + selectedFiltersString + " -> " + resultFile.getName() + "\n");
         } catch (IOException e) {
             e.printStackTrace(); // Maneja la excepción aquí
         }
@@ -146,7 +149,7 @@ public class EditTask extends Task<Integer> {
         //  Take note of: String outputName = inputPath.substring(0, intputPath.length() - 4) + "_gray.png";
 
         // TODO May change the save function to only save when selected on the TabPane itself.
-        updateMessage("Filters applied successfully 100%");
+        updateMessage("Filters applied successfully");
 
         return null;
     }
