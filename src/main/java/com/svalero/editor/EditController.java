@@ -80,7 +80,7 @@ public class EditController implements Initializable {
         }
 
         alertOverwrite.setTitle("Warning");
-        alertOverwrite.setHeaderText("This isn't the latest iteration of the picture.\n" +
+        alertOverwrite.setHeaderText("This isn't the latest iteration of the image.\n" +
                 "You'll overwrite the latests edits if you proceed.");
         alertOverwrite.setContentText("Do you wish to proceed?");
 
@@ -133,7 +133,7 @@ public class EditController implements Initializable {
             }
         }
         disableButtons();
-        applyFilter("Inverted Colors");
+        applyFilter("Invert Colors");
 
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -237,7 +237,7 @@ public class EditController implements Initializable {
 
             try (FileWriter writer = new FileWriter("History.txt", true)) {
                 writer.write(formattedDateTime + ": " + initialFile.getName() +
-                        " -> Undone edits: " + (imageVersions.size() - imageVersionsPosition.get()) + 1);
+                        " -> Undone edits: " + (imageVersions.size() - imageVersionsPosition.get() - 1) + "\n");
             } catch (IOException e) {
                 e.printStackTrace(); // Maneja la excepción aquí
             }
@@ -250,7 +250,6 @@ public class EditController implements Initializable {
 
     private void applyFilter(String filter) {
         Task<BufferedImage> filterTask;
-        System.out.println("Grayscale");
         if (filter.equals("Grayscale")) {
             filterTask = new GrayscaleTask(imageVersions.get(imageVersionsPosition.get()));
         } else if (filter.equals("Invert Colors")) {
