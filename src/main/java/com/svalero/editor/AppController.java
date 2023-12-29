@@ -1,6 +1,6 @@
 package com.svalero.editor;
-import static com.svalero.editor.util.Utils.isImage;
-import com.svalero.editor.util.Utils;
+import static com.svalero.editor.utils.Utils.isImage;
+import com.svalero.editor.utils.Utils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -109,9 +109,8 @@ public class AppController implements Initializable {
     @FXML
     private void launchEdit(ActionEvent event) {
         String originPath = tfOrigin.getText();
-        File initialFile = new File(originPath);
+        File sourceFile = new File(originPath);
         File destinationDirectory = new File(tfDestination.getText());
-
 
         if (cb1.getValue() == null) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -146,11 +145,11 @@ public class AppController implements Initializable {
         if (cb3.getValue() != null) selectedFilters.add(cb3.getValue());
         if (cb4.getValue() != null) selectedFilters.add(cb4.getValue());
 
-        if (isImage(initialFile)) {
+        if (isImage(sourceFile)) {
             if (tpEdits.getTabs().size() < maxTabs) {
                 try {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("tabpane.fxml"));
-                    loader.setController(new EditController(initialFile, destinationDirectory, selectedFilters));
+                    loader.setController(new EditController(sourceFile, destinationDirectory, selectedFilters));
                     // TODO Customize tab names or take them out entirely.
                     tpEdits.getTabs().add(new Tab("Tab Name", loader.load()));
                 } catch (IOException e) {
@@ -167,8 +166,8 @@ public class AppController implements Initializable {
                 alert.setContentText("Close some tabs or set a bigger maximum number of processes.");
                 alert.showAndWait();
             }
-        } else if (initialFile.isDirectory()) {
-            File[] filesInDirectory = initialFile.listFiles(Utils::isImage);
+        } else if (sourceFile.isDirectory()) {
+            File[] filesInDirectory = sourceFile.listFiles(Utils::isImage);
             if (filesInDirectory != null) {
                 if (tpEdits.getTabs().size() + filesInDirectory.length <= maxTabs) {
                     for (File file : filesInDirectory) {

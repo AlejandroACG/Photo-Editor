@@ -1,4 +1,4 @@
-package com.svalero.editor.util;
+package com.svalero.editor.utils;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
