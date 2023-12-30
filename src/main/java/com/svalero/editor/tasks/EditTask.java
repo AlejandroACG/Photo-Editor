@@ -72,6 +72,10 @@ public class EditTask extends Task<ArrayList<BufferedImage>> {
                 selectedFiltersString = selectedFiltersString + " -> " + selectedFilter;
 
                 imageVersionsPosition++;
+                Platform.runLater(() -> {
+                    ivEditedImage.setImage(SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition), null));
+                    spEditedContainer.setVisible(true);
+                });
             }
             updateMessage("Filters applied successfully");
 

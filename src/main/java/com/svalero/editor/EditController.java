@@ -65,6 +65,10 @@ public class EditController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         disableButtons();
         spEditedContainer.setVisible(false);
+        imageVersionsPosition.addListener((observable, oldValue, newValue) -> {
+            btnUndo.setDisable(imageVersionsPosition.get() == 0);
+            btnRedo.setDisable(imageVersionsPosition.get() == imageVersions.size() - 1);
+        });
 
         this.ivInitialImage.setImage(SwingFXUtils.toFXImage(imageVersions.get(0), null));
 
@@ -78,12 +82,9 @@ public class EditController implements Initializable {
                 imageVersionsPosition.set(imageVersions.size() - 1);
                 ivEditedImage.setImage(SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition.get()), null));
                 spEditedContainer.setVisible(true);
-
                 enableButtons();
-                imageVersionsPosition.addListener((observable, oldValue, newValue) -> {
-                    btnUndo.setDisable(imageVersionsPosition.get() == 0);
-                    btnRedo.setDisable(imageVersionsPosition.get() == imageVersions.size() - 1);
-                });
+
+                System.out.println(imageVersions.size());
             });
             pbProgress.progressProperty().bind(editTask.progressProperty());
             editTask.messageProperty().addListener((observable, oldValue, newValue) -> lblProgressStatus.setText(newValue));
