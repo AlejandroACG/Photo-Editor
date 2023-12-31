@@ -101,8 +101,8 @@ public class AppController implements Initializable {
 
             dialog.showAndWait();
         } catch (IOException e) {
-            Alerts.errorOpeningHistory();
             e.printStackTrace();
+            Alerts.errorOpeningHistory();
         }
     }
 
@@ -164,8 +164,8 @@ public class AppController implements Initializable {
             newTab.setContent(loader.load());
             tpEdits.getTabs().add(newTab);
         } catch (IOException e) {
-            Alerts.errorOpeningTab();
             e.printStackTrace();
+            Alerts.errorOpeningTab();
         }
     }
 }

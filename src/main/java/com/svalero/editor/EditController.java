@@ -17,6 +17,9 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -134,8 +137,8 @@ public class EditController implements Initializable {
             editTask.messageProperty().addListener((observable, oldValue, newValue) -> lblProgressStatus.setText(newValue));
             new Thread(editTask).start();
         } catch (IOException | InterruptedException e) {
-            Alerts.filtersFailure(sourceName);
             e.printStackTrace();
+            Alerts.filtersFailure(sourceName);
         }
     }
 
@@ -168,16 +171,19 @@ public class EditController implements Initializable {
         Stage stage = (Stage) this.btnSave.getScene().getWindow();
         File saveFile = fileChooser.showSaveDialog(stage);
 
-        if (!saveFile.getName().substring(saveFile.getName().lastIndexOf('.') + 1).equals(extension)) {
-            Alerts.saveFailure(sourceName);
-            return;
+        String fileName = saveFile.getName();
+        int dotIndex = fileName.lastIndexOf('.');
+        String currentExtension = (dotIndex > 0) ? fileName.substring(dotIndex + 1) : "";
+        String baseName = (dotIndex > 0) ? fileName.substring(0, dotIndex) : fileName;
+        if (!currentExtension.equals(extension) || dotIndex < 0) {
+            saveFile = Paths.get(saveFile.getParent(), baseName + "." + extension).toFile();
         }
 
         try {
             ImageIO.write(imageVersions.get(imageVersionsPosition.get()), extension, saveFile);
         } catch (IOException e) {
-            Alerts.saveFailure(sourceName);
             e.printStackTrace();
+            Alerts.saveFailure(sourceName);
             return;
         }
 
@@ -187,10 +193,10 @@ public class EditController implements Initializable {
 
         Utils.historyFileExists(historyFile);
         try (FileWriter writer = new FileWriter(historyFile, true)) {
-            writer.write(formattedDateTime + ": " + sourceName + " -> " + saveFile.getName() + "\n");
+            writer.write(formattedDateTime + ": " + sourceName + " -> " + fileName + "\n");
         } catch (IOException e) {
-            Alerts.errorWritingHistory();
             e.printStackTrace();
+            Alerts.errorWritingHistory();
         }
     }
 
