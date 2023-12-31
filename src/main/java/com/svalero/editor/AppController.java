@@ -255,7 +255,7 @@ public class AppController implements Initializable {
     private void createTab(File sourceFile, File destinationDirectory, ArrayList<String> selectedFilters) {
         try {
             // TODO Customize tab names or take them out entirely.
-            Tab newTab = new Tab("Tab Name");
+            Tab newTab = new Tab(sourceFile.getName());
             FXMLLoader loader = new FXMLLoader(getClass().getResource("edit.fxml"));
             loader.setController(new EditController(sourceFile, destinationDirectory, selectedFilters, newTab));
             newTab.setContent(loader.load());
