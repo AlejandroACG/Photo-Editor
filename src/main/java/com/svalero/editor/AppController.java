@@ -2,8 +2,6 @@ package com.svalero.editor;
 import static com.svalero.editor.utils.Utils.isImage;
 import com.svalero.editor.utils.Alerts;
 import com.svalero.editor.utils.Utils;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -50,51 +48,15 @@ public class AppController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         maxTabs = Integer.parseInt(tfMaxTabs.getText());
 
-        ObservableList<String> choiceBoxOptions1 = FXCollections.observableArrayList("Grayscale", "Invert Colors", "Increase Brightness", "Blur");
-        ObservableList<String> choiceBoxOptions2 = FXCollections.observableArrayList(" ", "Grayscale", "Invert Colors", "Increase Brightness", "Blur");
-        cb1.setItems(choiceBoxOptions1);
-        cb2.setItems(choiceBoxOptions2);
-        cb3.setItems(choiceBoxOptions2);
-        cb4.setItems(choiceBoxOptions2);
-
-        cb1.setValue(cb1.getItems().get(0));
-        cb3.setDisable(true);
-        cb4.setDisable(true);
-
-        cb2.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (" ".equals(newValue) || newValue == null) {
-                cb2.setValue(null);
-                cb3.setValue(null);
-                cb3.setDisable(true);
-            } else {
-                cb3.setDisable(false);
-            }
-        });
-
-        cb3.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (" ".equals(newValue) || newValue == null) {
-                cb3.setValue(null);
-                cb4.setValue(null);
-                cb4.setDisable(true);
-            } else {
-                cb4.setDisable(false);
-            }
-        });
-
-        cb4.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (" ".equals(newValue)) cb4.setValue(null);
-        });
+        Utils.choiceBoxSetUp(cb1, cb2, cb3, cb4);
     }
 
     @FXML
-    private void launchEdit(ActionEvent event) {
+    private void launchEditTab(ActionEvent event) {
         File sourceFile = new File (tfSource.getText());
 
         ArrayList<String> selectedFilters = new ArrayList<>();
-        selectedFilters.add(cb1.getValue());
-        if (cb2.getValue() != null) selectedFilters.add(cb2.getValue());
-        if (cb3.getValue() != null) selectedFilters.add(cb3.getValue());
-        if (cb4.getValue() != null) selectedFilters.add(cb4.getValue());
+        Utils.selectedFiltersFill(selectedFilters, cb1, cb2, cb3, cb4);
 
         if (isImage(sourceFile)) {
             if (tpEdits.getTabs().size() < maxTabs) {

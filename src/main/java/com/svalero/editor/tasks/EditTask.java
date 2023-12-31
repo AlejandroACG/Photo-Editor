@@ -28,7 +28,6 @@ public class EditTask extends Task<ArrayList<BufferedImage>> {
     private final File historyFile = new File("History.txt");
     private final StackPane spEditedContainer;
     private final ImageView ivEditedImage;
-    private final String filter;
     private final String sourceName;
 
     public EditTask(ArrayList<BufferedImage> imageVersions, ArrayList<String> selectedFilters,
@@ -36,20 +35,10 @@ public class EditTask extends Task<ArrayList<BufferedImage>> {
             throws IOException, InterruptedException {
         this.imageVersions = imageVersions;
         this.selectedFilters = selectedFilters;
-        this.imageVersionsPosition = 0;
+        this.imageVersionsPosition = imageVersions.size() - 1;
         this.spEditedContainer = spEditedContainer;
         this.ivEditedImage = ivEditedImage;
         this.sourceName = sourceName;
-        this.filter = null;
-    }
-
-    public EditTask(ArrayList<BufferedImage> imageVersions, String filter) {
-        this.imageVersions = imageVersions;
-        this.filter = filter;
-        this.selectedFilters = null;
-        this.spEditedContainer = null;
-        this.ivEditedImage = null;
-        this.sourceName = null;
     }
 
     @Override
@@ -57,44 +46,29 @@ public class EditTask extends Task<ArrayList<BufferedImage>> {
         Utils.historyFileExists(historyFile);
         updateMessage("Applying Filters... 0%");
 
-        if (selectedFilters != null) {
-            String selectedFiltersString = "";
-            for (String selectedFilter : selectedFilters) {
-                BufferedImage newImage = Utils.copyBufferedImage(imageVersions.get(imageVersionsPosition));
-                imageVersions.add(applyFilters(newImage, selectedFilter));
-                selectedFiltersString = selectedFiltersString + " -> " + selectedFilter;
+        String selectedFiltersString = "";
+        for (String selectedFilter : selectedFilters) {
+            BufferedImage newImage = Utils.copyBufferedImage(imageVersions.get(imageVersionsPosition));
+            imageVersions.add(applyFilters(newImage, selectedFilter));
 
-                imageVersionsPosition++;
-                Platform.runLater(() -> {
-                    ivEditedImage.setImage(SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition), null));
-                    spEditedContainer.setVisible(true);
-                });
-            }
-            updateMessage("Filters applied successfully 100%");
+            selectedFiltersString = selectedFiltersString + " -> " + selectedFilter;
 
-            LocalDateTime now = LocalDateTime.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            String formattedDateTime = now.format(formatter);
-            try (FileWriter writer = new FileWriter(historyFile, true)) {
-                writer.write(formattedDateTime + ": " + sourceName + selectedFiltersString + "\n");
-            } catch (IOException e) {
-                Alerts.errorWritingHistory();
-                e.printStackTrace();
-            }
-        } else {
-            BufferedImage newImage = Utils.copyBufferedImage(imageVersions.get(imageVersions.size()-1));
-            imageVersions.add(applyFilters(newImage, filter));
-            updateMessage("Filter applied successfully 100%");
+            imageVersionsPosition++;
+            Platform.runLater(() -> {
+                ivEditedImage.setImage(SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition), null));
+                spEditedContainer.setVisible(true);
+            });
+        }
+        updateMessage("Filters applied successfully 100%");
 
-            LocalDateTime now = LocalDateTime.now();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            String formattedDateTime = now.format(formatter);
-            try (FileWriter writer = new FileWriter(historyFile, true)) {
-                writer.write(formattedDateTime + ": " + sourceName + " -> " + filter + "\n");
-            } catch (IOException e) {
-                Alerts.errorWritingHistory();
-                e.printStackTrace();
-            }
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String formattedDateTime = now.format(formatter);
+        try (FileWriter writer = new FileWriter(historyFile, true)) {
+            writer.write(formattedDateTime + ": " + sourceName + selectedFiltersString + "\n");
+        } catch (IOException e) {
+            Alerts.errorWritingHistory();
+            e.printStackTrace();
         }
         return imageVersions;
     }

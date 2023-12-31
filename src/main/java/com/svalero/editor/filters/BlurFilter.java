@@ -8,7 +8,7 @@ public class BlurFilter {
 
         for (int y = 0; y < BLUR_INTENSITY * 2 + 1; y++) {
             for (int x = 0; x < BLUR_INTENSITY * 2 + 1; x++) {
-                Color color = new Color(surroundingColors[y][x].getRGB());
+                Color color = surroundingColors[y][x];
                 totalRed += color.getRed();
                 totalGreen += color.getGreen();
                 totalBlue += color.getBlue();

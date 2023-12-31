@@ -4,8 +4,6 @@ import com.svalero.editor.utils.Alerts;
 import com.svalero.editor.utils.Utils;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -13,10 +11,8 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
-import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -30,10 +26,9 @@ import java.util.UUID;
 
 public class EditController implements Initializable {
     private ArrayList<BufferedImage> imageVersions = new ArrayList<>();
-    private final ArrayList<String> selectedFilters;
+    private ArrayList<String> selectedFilters;
     private final String sourceName;
     private final IntegerProperty imageVersionsPosition = new SimpleIntegerProperty(0);
-    Alert alertOverwrite = new Alert(Alert.AlertType.CONFIRMATION);
     private final Tab myTab;
     private final File historyFile = new File("History.txt");
     @FXML
@@ -51,7 +46,13 @@ public class EditController implements Initializable {
     @FXML
     private Label lblProgressStatus;
     @FXML
-    private ChoiceBox<String> cbTab;
+    private ChoiceBox<String> cbTab1;
+    @FXML
+    private ChoiceBox<String> cbTab2;
+    @FXML
+    private ChoiceBox<String> cbTab3;
+    @FXML
+    private ChoiceBox<String> cbTab4;
     @FXML
     private Button btnEditTab;
     @FXML
@@ -67,10 +68,10 @@ public class EditController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         disableButtons();
-        ObservableList<String> choiceBoxOptions = FXCollections.observableArrayList("Grayscale", "Invert Colors", "Increase Brightness", "Blur");
-        cbTab.setItems(choiceBoxOptions);
-        cbTab.setValue(cbTab.getItems().get(0));
+
+        Utils.choiceBoxSetUp(cbTab1, cbTab2, cbTab3, cbTab4);
         spEditedContainer.setVisible(false);
+
         imageVersionsPosition.addListener((observable, oldValue, newValue) -> {
             btnUndo.setDisable(imageVersionsPosition.get() == 0);
             btnRedo.setDisable(imageVersionsPosition.get() == imageVersions.size() - 1);
@@ -92,18 +93,36 @@ public class EditController implements Initializable {
 
         ivInitialImage.setImage(SwingFXUtils.toFXImage(imageVersions.get(0), null));
 
+        launchEditTask();
+    }
+
+    @FXML
+    private void editAgain(ActionEvent event) {
+        if (!(imageVersionsPosition.get() == imageVersions.size() - 1)) {
+            if (!confirmOverwrite()) {
+                return;
+            }
+        }
+        disableButtons();
+
+        selectedFilters = new ArrayList<>();
+        Utils.selectedFiltersFill(selectedFilters, cbTab1, cbTab2, cbTab3, cbTab4);
+
+        launchEditTask();
+    }
+
+    private void launchEditTask() {
         try {
             EditTask editTask = new EditTask(imageVersions, selectedFilters,
                     spEditedContainer, ivEditedImage, sourceName);
             editTask.setOnFailed(workerStateEvent -> {
                 Alerts.filtersFailure(sourceName);
-                myTab.getTabPane().getTabs().remove(myTab);
+                lblProgressStatus.setText("Filters couldn't be applied");
+                pbProgress.setProgress(0);
             });
             editTask.setOnSucceeded(workerStateEvent -> {
                 imageVersions = editTask.getValue();
                 imageVersionsPosition.set(imageVersions.size() - 1);
-                ivEditedImage.setImage(SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition.get()), null));
-                spEditedContainer.setVisible(true);
 
                 if (!myTab.isSelected()) {
                     myTab.getStyleClass().add("tab-edited");
@@ -116,32 +135,6 @@ public class EditController implements Initializable {
             new Thread(editTask).start();
         } catch (IOException | InterruptedException e) {
             Alerts.filtersFailure(sourceName);
-            e.printStackTrace();
-            myTab.getTabPane().getTabs().remove(myTab);
-        }
-    }
-
-    @FXML
-    private void launchEditTab(ActionEvent event) {
-        if (!(imageVersionsPosition.get() == imageVersions.size() - 1)) {
-            if (!confirmOverwrite()) {
-                return;
-            }
-        }
-
-        String filter = cbTab.getValue();
-
-        applyFilter(filter);
-
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String formattedDateTime = now.format(formatter);
-
-        Utils.historyFileExists(historyFile);
-        try (FileWriter writer = new FileWriter(historyFile, true)) {
-            writer.write(formattedDateTime + ": " + sourceName + " -> " + filter +"\n");
-        } catch (IOException e) {
-            Alerts.errorWritingHistory();
             e.printStackTrace();
         }
     }
@@ -202,6 +195,7 @@ public class EditController implements Initializable {
     }
 
     private boolean confirmOverwrite() {
+        Alert alertOverwrite = new Alert(Alert.AlertType.CONFIRMATION);
         alertOverwrite.setTitle("Warning");
         alertOverwrite.setHeaderText("This isn't the latest iteration of the image.\n" +
                 "You'll overwrite the latests edits if you proceed.");
@@ -226,37 +220,6 @@ public class EditController implements Initializable {
             return true;
         }
         return false;
-    }
-
-    private void applyFilter(String filter) {
-        disableButtons();
-
-        EditTask editTask = new EditTask(imageVersions, filter);
-
-        pbProgress.progressProperty().bind(editTask.progressProperty());
-        editTask.messageProperty().addListener((observable, oldValue, newValue) -> lblProgressStatus.setText(newValue));
-        editTask.setOnFailed(workerStateEvent -> {
-            lblProgressStatus.setText("Filter couldn't be applied");
-            pbProgress.setProgress(0);
-            Alerts.filterFailure(sourceName, filter);
-            enableButtons();
-        });
-        editTask.setOnSucceeded(workerStateEvent -> {
-            imageVersions = editTask.getValue();
-            imageVersionsPosition.set(imageVersions.size() - 1);
-
-            ivEditedImage.setImage(SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition.get()), null));
-
-            if (!myTab.isSelected()) {
-                myTab.getStyleClass().add("tab-edited");
-            }
-
-            enableButtons();
-            Alerts.filterSuccess(sourceName, filter);
-        });
-        pbProgress.progressProperty().bind(editTask.progressProperty());
-        editTask.messageProperty().addListener((observable, oldValue, newValue) -> lblProgressStatus.setText(newValue));
-        new Thread(editTask).start();
     }
 
     private void disableButtons() {

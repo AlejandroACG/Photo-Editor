@@ -36,10 +36,11 @@
          <children>
             <Label fx:id="lblProgressStatus" alignment="CENTER" contentDisplay="CENTER" prefHeight="26.0" prefWidth="282.0" textAlignment="CENTER" textFill="#bf2f2f" />
             <ProgressBar fx:id="pbProgress" prefHeight="58.0" prefWidth="282.0" progress="0.0" />
-            <HBox prefHeight="100.0" prefWidth="200.0" />
-            <ChoiceBox fx:id="cbTab" prefHeight="36.0" prefWidth="230.0" />
-            <Button fx:id="btnEditTab" disable="true" mnemonicParsing="false" onAction="#launchEditTab" text="Edit" />
-            <HBox prefHeight="100.0" prefWidth="200.0" />
+            <ChoiceBox fx:id="cbTab1" prefHeight="36.0" prefWidth="230.0" />
+            <ChoiceBox fx:id="cbTab2" prefHeight="36.0" prefWidth="230.0" />
+            <ChoiceBox fx:id="cbTab3" prefHeight="36.0" prefWidth="230.0" />
+            <ChoiceBox fx:id="cbTab4" prefHeight="36.0" prefWidth="230.0" />
+            <Button fx:id="btnEditTab" disable="true" mnemonicParsing="false" onAction="#editAgain" text="Edit" />
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                <children>
                   <Button fx:id="btnUndo" alignment="CENTER" mnemonicParsing="false" onAction="#undoEdit" prefHeight="50.0" prefWidth="50.0" styleClass="button-undo-redo" text="↺" />
