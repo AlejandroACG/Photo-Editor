@@ -191,7 +191,7 @@ public class EditController implements Initializable {
 
         Utils.historyFileExists(historyFile);
         try (FileWriter writer = new FileWriter(historyFile, true)) {
-            writer.write(formattedDateTime + ": " + sourceName + " -> " + fileName + "\n");
+            writer.write(formattedDateTime + ": " + sourceName + " -> " + saveFile.getName() + "\n");
         } catch (IOException e) {
             e.printStackTrace();
             Alerts.errorWritingHistory();
