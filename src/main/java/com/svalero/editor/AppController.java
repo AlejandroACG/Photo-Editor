@@ -22,11 +22,7 @@ import java.util.ResourceBundle;
 public class AppController implements Initializable {
     private int maxTabs;
     @FXML
-    private TextField tfDestination;
-    @FXML
     private Button btnHistory;
-    @FXML
-    private Label lblSavePath;
     @FXML
     private TabPane tpEdits;
     @FXML
@@ -44,8 +40,6 @@ public class AppController implements Initializable {
     @FXML
     private Button btnBrowseSource;
     @FXML
-    private Button btnBrowseDestination;
-    @FXML
     private TextField tfMaxTabs;
     @FXML
     private Button btnMaxTabs;
@@ -55,7 +49,6 @@ public class AppController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         maxTabs = Integer.parseInt(tfMaxTabs.getText());
-        Utils.resultsDirectoryExists();
 
         ObservableList<String> choiceBoxOptions1 = FXCollections.observableArrayList("Grayscale", "Invert Colors", "Increase Brightness", "Blur");
         ObservableList<String> choiceBoxOptions2 = FXCollections.observableArrayList(" ", "Grayscale", "Invert Colors", "Increase Brightness", "Blur");
@@ -96,12 +89,6 @@ public class AppController implements Initializable {
     @FXML
     private void launchEdit(ActionEvent event) {
         File sourceFile = new File (tfSource.getText());
-        File destinationDirectory = new File(tfDestination.getText());
-
-        if (!destinationDirectory.exists() || !destinationDirectory.isDirectory()) {
-            Alerts.invalidDestinationPath();
-            return;
-        }
 
         ArrayList<String> selectedFilters = new ArrayList<>();
         selectedFilters.add(cb1.getValue());
@@ -111,7 +98,7 @@ public class AppController implements Initializable {
 
         if (isImage(sourceFile)) {
             if (tpEdits.getTabs().size() < maxTabs) {
-                createTab(sourceFile, destinationDirectory, selectedFilters);
+                createTab(sourceFile, selectedFilters);
             } else {
                 Alerts.tooManyTabs();
             }
@@ -120,7 +107,7 @@ public class AppController implements Initializable {
             if (filesInDirectory != null) {
                 if (tpEdits.getTabs().size() + filesInDirectory.length <= maxTabs) {
                     for (File file : filesInDirectory) {
-                        createTab(file, destinationDirectory, selectedFilters);
+                        createTab(file, selectedFilters);
                     }
                 } else {
                     Alerts.tooManyTabs();
@@ -199,20 +186,6 @@ public class AppController implements Initializable {
     }
 
     @FXML
-    private void browseDestination(ActionEvent event) {
-        DirectoryChooser directoryChooser = new DirectoryChooser();
-        directoryChooser.setTitle("Select Save Directory");
-        directoryChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
-
-        Stage stage = (Stage) btnBrowseDestination.getScene().getWindow();
-        File selectedDirectory = directoryChooser.showDialog(stage);
-
-        if (selectedDirectory != null) {
-            tfDestination.setText(selectedDirectory.getAbsolutePath());
-        }
-    }
-
-    @FXML
     private void changeMaxTabs(ActionEvent event) {
         if (tfMaxTabs.getText().matches("\\d+") && 1 <= maxTabs && maxTabs <= 99) {
             maxTabs = Integer.parseInt(tfMaxTabs.getText());
@@ -221,11 +194,11 @@ public class AppController implements Initializable {
         }
     }
 
-    private void createTab(File sourceFile, File destinationDirectory, ArrayList<String> selectedFilters) {
+    private void createTab(File sourceFile, ArrayList<String> selectedFilters) {
         try {
             Tab newTab = new Tab(sourceFile.getName());
             FXMLLoader loader = new FXMLLoader(getClass().getResource("edit.fxml"));
-            loader.setController(new EditController(sourceFile, destinationDirectory, selectedFilters, newTab));
+            loader.setController(new EditController(sourceFile, selectedFilters, newTab));
             newTab.setContent(loader.load());
             tpEdits.getTabs().add(newTab);
         } catch (IOException e) {

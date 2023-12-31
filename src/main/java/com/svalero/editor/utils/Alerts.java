@@ -33,14 +33,6 @@ public class Alerts {
         alert.showAndWait();
     }
 
-    public static void invalidDestinationPath() {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Error");
-        alert.setHeaderText("Invalid Destination Directory");
-        alert.setContentText("Please select a valid directory to save the edits");
-        alert.showAndWait();
-    }
-
     public static void tooManyTabs() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Error");

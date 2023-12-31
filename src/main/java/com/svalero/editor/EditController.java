@@ -13,6 +13,10 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -26,10 +30,9 @@ import java.util.UUID;
 
 public class EditController implements Initializable {
     private ArrayList<BufferedImage> imageVersions = new ArrayList<>();
-    private final File destinationDirectory;
     private final ArrayList<String> selectedFilters;
     private final String sourceName;
-    private IntegerProperty imageVersionsPosition = new SimpleIntegerProperty(0);
+    private final IntegerProperty imageVersionsPosition = new SimpleIntegerProperty(0);
     Alert alertOverwrite = new Alert(Alert.AlertType.CONFIRMATION);
     private final Tab myTab;
     private final File historyFile = new File("History.txt");
@@ -54,10 +57,9 @@ public class EditController implements Initializable {
     @FXML
     private Button btnSave;
 
-    public EditController(File sourceFile, File destinationDirectory, ArrayList<String> selectedFilters, Tab myTab) throws IOException {
+    public EditController(File sourceFile, ArrayList<String> selectedFilters, Tab myTab) throws IOException {
         this.imageVersions.add(ImageIO.read(sourceFile));
         this.sourceName = sourceFile.getName();
-        this.destinationDirectory = destinationDirectory;
         this.selectedFilters = selectedFilters;
         this.myTab = myTab;
     }
@@ -106,8 +108,8 @@ public class EditController implements Initializable {
                 if (!myTab.isSelected()) {
                     myTab.getStyleClass().add("tab-edited");
                 }
-                Alerts.filtersSuccess(sourceName);
                 enableButtons();
+                Alerts.filtersSuccess(sourceName);
             });
             pbProgress.progressProperty().bind(editTask.progressProperty());
             editTask.messageProperty().addListener((observable, oldValue, newValue) -> lblProgressStatus.setText(newValue));
@@ -161,11 +163,23 @@ public class EditController implements Initializable {
     @FXML
     private void saveImage(ActionEvent event) {
         String extension = sourceName.substring(sourceName.lastIndexOf('.') + 1);
-        File saveFile;
-        do {
-            String uniqueFileName = UUID.randomUUID() + "." + extension;
-            saveFile = new File(destinationDirectory, uniqueFileName);
-        } while (saveFile.exists());
+        String uniqueFileName = UUID.randomUUID() + "." + extension;
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save File");
+        Utils.resultsDirectoryExists();
+        fileChooser.setInitialDirectory(new File("Results"));
+        FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Source image extension", extension);
+        fileChooser.getExtensionFilters().add(filter);
+        fileChooser.setInitialFileName(uniqueFileName);
+        Stage stage = (Stage) this.btnSave.getScene().getWindow();
+        File saveFile = fileChooser.showSaveDialog(stage);
+
+        if (!saveFile.getName().substring(saveFile.getName().lastIndexOf('.') + 1).equals(extension)) {
+            Alerts.saveFailure(sourceName);
+            return;
+        }
+
         try {
             ImageIO.write(imageVersions.get(imageVersionsPosition.get()), extension, saveFile);
         } catch (IOException e) {
@@ -237,8 +251,8 @@ public class EditController implements Initializable {
                 myTab.getStyleClass().add("tab-edited");
             }
 
-            Alerts.filterSuccess(sourceName, filter);
             enableButtons();
+            Alerts.filterSuccess(sourceName, filter);
         });
         pbProgress.progressProperty().bind(editTask.progressProperty());
         editTask.messageProperty().addListener((observable, oldValue, newValue) -> lblProgressStatus.setText(newValue));
