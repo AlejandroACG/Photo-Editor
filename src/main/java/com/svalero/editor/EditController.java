@@ -2,6 +2,8 @@ package com.svalero.editor;
 import com.svalero.editor.tasks.*;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -25,9 +27,9 @@ public class EditController implements Initializable {
     private final File destinationDirectory;
     private final ArrayList<String> selectedFilters;
     private final String sourceName;
-    // TODO This has to receive the data from EditTask.
     private IntegerProperty imageVersionsPosition = new SimpleIntegerProperty(0);
     Alert alertOverwrite = new Alert(Alert.AlertType.CONFIRMATION);
+    private final Tab myTab;
     @FXML
     private ImageView ivInitialImage;
     @FXML
@@ -43,37 +45,51 @@ public class EditController implements Initializable {
     @FXML
     private Label lblProgressStatus;
     @FXML
+    private ChoiceBox<String> cbTab;
+    @FXML
+    private Button btnEditTab;
+    @FXML
     private Button btnSave;
-    @FXML
-    private Button btnGrayscale;
-    @FXML
-    private Button btnInvertColors;
-    @FXML
-    private Button btnIncreaseBrightness;
-    @FXML
-    private Button btnBlur;
 
     // TODO Update History with new editions and specify if some of them are deleted.
-    public EditController(File sourceFile, File destinationDirectory, ArrayList<String> selectedFilters) throws IOException {
+    public EditController(File sourceFile, File destinationDirectory, ArrayList<String> selectedFilters, Tab myTab) throws IOException {
         this.imageVersions.add(ImageIO.read(sourceFile));
         this.sourceName = sourceFile.getName();
         this.destinationDirectory = destinationDirectory;
         this.selectedFilters = selectedFilters;
+        this.myTab = myTab;
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         disableButtons();
+        ObservableList<String> choiceBoxOptions = FXCollections.observableArrayList("Grayscale", "Invert Colors", "Increase Brightness", "Blur");
+        cbTab.setItems(choiceBoxOptions);
+        cbTab.setValue(cbTab.getItems().get(0));
         spEditedContainer.setVisible(false);
         imageVersionsPosition.addListener((observable, oldValue, newValue) -> {
             btnUndo.setDisable(imageVersionsPosition.get() == 0);
             btnRedo.setDisable(imageVersionsPosition.get() == imageVersions.size() - 1);
         });
+        myTab.selectedProperty().addListener((observable, wasSelected, isNowSelected) -> {
+            if (isNowSelected) {
+                myTab.getStyleClass().remove("tab-edited");
+            }
+        });
+        pbProgress.progressProperty().addListener((obs, oldValue, newValue) -> {
+            if (newValue.doubleValue() >= 1) {
+                pbProgress.getStyleClass().remove("progress-bar");
+                pbProgress.getStyleClass().add("progress-bar-complete");
+            } else {
+                pbProgress.getStyleClass().remove("progress-bar-complete");
+                pbProgress.getStyleClass().add("progress-bar");
+            }
+        });
 
         this.ivInitialImage.setImage(SwingFXUtils.toFXImage(imageVersions.get(0), null));
 
         // TODO Update Message with "something went wrong" if something goes wrong?
-        // TODO Delete unneeded "this."
+        // TODO Delete all unneeded "this."
         try {
             EditTask editTask = new EditTask(imageVersions, selectedFilters,
                     spEditedContainer, ivEditedImage, sourceName);
@@ -83,8 +99,9 @@ public class EditController implements Initializable {
                 ivEditedImage.setImage(SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition.get()), null));
                 spEditedContainer.setVisible(true);
                 enableButtons();
-
-                System.out.println(imageVersions.size());
+                if (!myTab.isSelected()) {
+                    myTab.getStyleClass().add("tab-edited");
+                }
             });
             pbProgress.progressProperty().bind(editTask.progressProperty());
             editTask.messageProperty().addListener((observable, oldValue, newValue) -> lblProgressStatus.setText(newValue));
@@ -98,80 +115,23 @@ public class EditController implements Initializable {
     }
 
     @FXML
-    private void launchGrayscale(ActionEvent event) {
+    private void launchEditTab(ActionEvent event) {
         if (!(imageVersionsPosition.get() == imageVersions.size() - 1)) {
             if (!confirmOverwrite()) {
                 return;
             }
         }
-        applyFilter("Grayscale");
+
+        String filter = cbTab.getValue();
+
+        applyFilter(filter);
 
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String formattedDateTime = now.format(formatter);
 
         try (FileWriter writer = new FileWriter("History.txt", true)) {
-            writer.write(formattedDateTime + ": " + sourceName + " -> Grayscale\n");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void launchInvertColors(ActionEvent event) {
-        if (!(imageVersionsPosition.get() == imageVersions.size() - 1)) {
-            if (!confirmOverwrite()) {
-                return;
-            }
-        }
-        applyFilter("Invert Colors");
-
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String formattedDateTime = now.format(formatter);
-
-        try (FileWriter writer = new FileWriter("History.txt", true)) {
-            writer.write(formattedDateTime + ": " + sourceName + " -> Invert Colors\n");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void launchIncreaseBrightness(ActionEvent event) {
-        if (!(imageVersionsPosition.get() == imageVersions.size() - 1)) {
-            if (!confirmOverwrite()) {
-                return;
-            }
-        }
-        applyFilter("Increase Brightness");
-
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String formattedDateTime = now.format(formatter);
-
-        try (FileWriter writer = new FileWriter("History.txt", true)) {
-            writer.write(formattedDateTime + ": " + sourceName + " -> Increase Brightness\n");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @FXML
-    private void launchBlur(ActionEvent event) {
-        if (!(imageVersionsPosition.get() == imageVersions.size() - 1)) {
-            if (!confirmOverwrite()) {
-                return;
-            }
-        }
-        applyFilter("Blur");
-
-        LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String formattedDateTime = now.format(formatter);
-
-        try (FileWriter writer = new FileWriter("History.txt", true)) {
-            writer.write(formattedDateTime + ": " + sourceName + " -> Blur\n");
+            writer.write(formattedDateTime + ": " + sourceName + " -> " + filter +"\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -254,6 +214,9 @@ public class EditController implements Initializable {
             imageVersionsPosition.set(imageVersions.size() - 1);
 
             ivEditedImage.setImage(SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition.get()), null));
+            if (!myTab.isSelected()) {
+                myTab.getStyleClass().add("tab-edited");
+            }
 
             enableButtons();
         });
@@ -265,18 +228,12 @@ public class EditController implements Initializable {
     private void disableButtons() {
         btnUndo.setDisable(true);
         btnRedo.setDisable(true);
-        btnGrayscale.setDisable(true);
-        btnInvertColors.setDisable(true);
-        btnIncreaseBrightness.setDisable(true);
-        btnBlur.setDisable(true);
+        btnEditTab.setDisable(true);
         btnSave.setDisable(true);
     }
 
     private void enableButtons() {
-        btnGrayscale.setDisable(false);
-        btnInvertColors.setDisable(false);
-        btnIncreaseBrightness.setDisable(false);
-        btnBlur.setDisable(false);
+        btnEditTab.setDisable(false);
         btnSave.setDisable(false);
     }
 }

@@ -61,7 +61,7 @@ public class EditTask extends Task<ArrayList<BufferedImage>> {
             }
         }
 
-        updateMessage("Applying Filters...");
+        updateMessage("Applying Filters... 0%");
         // TODO Try to code % again.
 
         if (selectedFilters != null) {
@@ -77,7 +77,7 @@ public class EditTask extends Task<ArrayList<BufferedImage>> {
                     spEditedContainer.setVisible(true);
                 });
             }
-            updateMessage("Filters applied successfully");
+            updateMessage("Filters applied successfully 100%");
 
             LocalDateTime now = LocalDateTime.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -90,7 +90,7 @@ public class EditTask extends Task<ArrayList<BufferedImage>> {
         } else {
             BufferedImage newImage = Utils.copyBufferedImage(imageVersions.get(imageVersions.size()-1));
             imageVersions.add(applyFilters(newImage, filter));
-            updateMessage("Filter applied successfully");
+            updateMessage("Filter applied successfully 100%");
 
             LocalDateTime now = LocalDateTime.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -105,38 +105,51 @@ public class EditTask extends Task<ArrayList<BufferedImage>> {
     }
 
     private BufferedImage applyFilters(BufferedImage image, String filter) throws InterruptedException {
+        int totalProcessedPixels = 0;
+        int totalProcessedPercentage = 0;
+        int imageSize = image.getWidth() * image.getHeight();
         for (int y = 0; y < image.getHeight(); y++) {
             Thread.sleep(SLEEP_TIME);
             for (int x = 0; x < image.getWidth(); x++) {
                 Color color = new Color(image.getRGB(x, y));
                 if (filter.equals("Grayscale")) {
-                    updateMessage("Applying Grayscale...");
+                    updateMessage("Applying Grayscale... " + totalProcessedPercentage + "%");
                     image.setRGB(x, y, GrayscaleFilter.apply(color).getRGB());
                 } else if (filter.equals("Invert Colors")) {
-                    updateMessage("Inverting Colors...");
+                    updateMessage("Inverting Colors... " + totalProcessedPercentage + "%");
                     image.setRGB(x, y, InvertColorsFilter.apply(color).getRGB());
                 } else if (filter.equals("Increase Brightness")) {
-                    updateMessage("Increasing Brightness...");
+                    updateMessage("Increasing Brightness... " + totalProcessedPercentage + "%");
                     image.setRGB(x, y, IncreaseBrightnessFilter.apply(color).getRGB());
-                } else if (filter.equals("Blur") && y - BLUR_INTENSITY >= 0 && y + BLUR_INTENSITY < image.getHeight()
-                        && x - BLUR_INTENSITY >= 0 && x + BLUR_INTENSITY < image.getWidth()) {
-                    updateMessage("Applying Blur...");
-                    int row = 0;
-                    int column;
-                    Color[][] surroundingColors = new Color[BLUR_INTENSITY * 2 + 1][BLUR_INTENSITY * 2 + 1];
-                    for (int dy = -BLUR_INTENSITY; dy <= BLUR_INTENSITY; dy++) {
-                        column = 0;
-                        for (int dx = -BLUR_INTENSITY; dx <= BLUR_INTENSITY; dx++) {
-                            surroundingColors[row][column] = new Color(image.getRGB(x + dx, y + dy));
-                            column++;
-                        }
-                        row++;
-                    }
-                    image.setRGB(x, y, BlurFilter.apply(surroundingColors).getRGB());
+                } else if (filter.equals("Blur") && canBeBlurred(y, x, image)) {
+                    updateMessage("Applying Blur... " + totalProcessedPercentage + "%");
+                    image.setRGB(x, y, BlurFilter.apply(getSurroundingColors(y, x, image)).getRGB());
                 }
+                updateProgress(++totalProcessedPixels, imageSize);
+                totalProcessedPercentage = (int) (((double) totalProcessedPixels / imageSize) * 100);
             }
-            updateProgress(y, image.getHeight());
         }
         return image;
+    }
+
+    private boolean canBeBlurred(int y, int x, BufferedImage image) {
+        return y - BLUR_INTENSITY >= 0 && y + BLUR_INTENSITY < image.getHeight()
+                && x - BLUR_INTENSITY >= 0 && x + BLUR_INTENSITY < image.getWidth();
+    }
+
+    private Color[][] getSurroundingColors(int y, int x, BufferedImage image) {
+        int row = 0;
+        int column;
+        Color[][] surroundingColors = new Color[BLUR_INTENSITY * 2 + 1][BLUR_INTENSITY * 2 + 1];
+        for (int dy = -BLUR_INTENSITY; dy <= BLUR_INTENSITY; dy++) {
+            column = 0;
+            for (int dx = -BLUR_INTENSITY; dx <= BLUR_INTENSITY; dx++) {
+                surroundingColors[row][column] = new Color(image.getRGB(x + dx, y + dy));
+                column++;
+            }
+            row++;
+        }
+
+        return surroundingColors;
     }
 }

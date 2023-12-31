@@ -20,12 +20,12 @@
       </font></Button>
       <ChoiceBox fx:id="cb1" layoutX="43.0" layoutY="75.0" prefWidth="150.0" AnchorPane.leftAnchor="35.0" AnchorPane.topAnchor="70.0" />
       <ChoiceBox fx:id="cb2" layoutX="210.0" layoutY="75.0" prefWidth="150.0" AnchorPane.leftAnchor="195.0" AnchorPane.topAnchor="70.0" />
-      <ChoiceBox fx:id="cb3" layoutX="378.0" layoutY="75.0" prefWidth="150.0" AnchorPane.leftAnchor="360.0" AnchorPane.topAnchor="70.0" />
-      <ChoiceBox fx:id="cb4" layoutX="545.0" layoutY="75.0" prefWidth="150.0" AnchorPane.leftAnchor="524.0" AnchorPane.topAnchor="70.0" />
+      <ChoiceBox fx:id="cb3" layoutX="378.0" layoutY="75.0" prefWidth="150.0" AnchorPane.leftAnchor="356.0" AnchorPane.topAnchor="70.0" />
+      <ChoiceBox fx:id="cb4" layoutX="545.0" layoutY="75.0" prefWidth="150.0" AnchorPane.leftAnchor="516.0" AnchorPane.topAnchor="70.0" />
       <TextField fx:id="tfOrigin" layoutX="43.0" layoutY="18.0" prefHeight="30.0" prefWidth="630.0" promptText="Path to file(s)" AnchorPane.leftAnchor="35.0" AnchorPane.topAnchor="10.0" />
       <Button fx:id="btnBrowseOrigin" layoutX="681.0" layoutY="13.0" mnemonicParsing="false" onAction="#browseOrigin" styleClass="browse-button" text="📁" AnchorPane.leftAnchor="676.0" AnchorPane.topAnchor="6.0" />
       <Button fx:id="btnBrowseDestination" layoutX="506.0" layoutY="149.0" mnemonicParsing="false" onAction="#browseDestination" styleClass="browse-button" text="📁" AnchorPane.leftAnchor="495.0" AnchorPane.topAnchor="140.0" />
-   <TextField fx:id="tfMaxTabs" layoutX="585.0" layoutY="151.0" prefHeight="36.0" prefWidth="62.0" text="10" AnchorPane.leftAnchor="585.0" AnchorPane.topAnchor="144.0" />
+   <TextField fx:id="tfMaxTabs" layoutX="585.0" layoutY="151.0" prefHeight="36.0" prefWidth="62.0" text="7" AnchorPane.leftAnchor="585.0" AnchorPane.topAnchor="144.0" />
    <Button fx:id="btnMaxTabs" layoutX="661.0" layoutY="149.0" mnemonicParsing="false" onAction="#changeMaxTabs" text="Apply" AnchorPane.leftAnchor="657.0" AnchorPane.topAnchor="140.0" />
    <Label fx:id="lblMaxTabs" layoutX="594.0" layoutY="118.0" prefHeight="20.0" prefWidth="214.0" text="Max Number of Processes" AnchorPane.leftAnchor="595.0" AnchorPane.topAnchor="118.0" />
    <padding>

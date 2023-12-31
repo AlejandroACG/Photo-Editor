@@ -2,14 +2,19 @@
     -fx-font-size: 17px;
     -fx-font-family: "Arial";
     -fx-font-weight: bold;
+    -fx-background-color: #3078c6;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
 }
 
 {
     -fx-text-fill: #FFFFFF;
-    -fx-background-color: #081463;
 }
 
 .text-field {
+    -fx-prompt-text-fill: #d4e8ff;
+    -fx-text-fill: white;
+    -fx-background-color: #5591d2;
     -fx-border-color: #d1d7ff;
     -fx-border-width: 2;
     -fx-border-radius: 5;
@@ -49,8 +54,12 @@
     -fx-border-radius: 5;
 }
 
+.choice-box .context-menu {
+    -fx-background-color: #1e5a97;
+}
+
+
 .choice-box .label {
-    -fx-text-fill: #FFFFFF;
     -fx-font-weight: bold;
 }
 
@@ -64,15 +73,16 @@
 }
 
 .choice-box:showing {
+    -fx-background-color: #194c80;
+}
+
+.choice-box:pressed {
     -fx-background-color: #1e5a97;
 }
 
 .choice-box .menu {
-    -fx-background-color: #081463;
-}
-
-.choice-box .menu-item {
     -fx-text-fill: white;
+    -fx-background-color: #1e5a97;
 }
 
 .choice-box .menu-item:focused {
@@ -81,26 +91,46 @@
 
 .tab-pane {
     -fx-border-color: #d1d7ff;
-    -fx-border-width: 2px;
+    -fx-background-color: #5591d2;
+    -fx-border-width: 4;
     -fx-border-style: solid;
     -fx-border-insets: -1;
     -fx-border-radius: 5; 
 }
 
-.tab-pane .tab-header-background {
-    -fx-background-color: #3078c6;
+.tab-pane .context-menu {
+    -fx-background-color: #1e5a97;
+    -fx-mark-color: white;
 }
 
-.tab-pane .tab {
-    -fx-background-color: #5591d2;
+.tab-header-background {
+    -fx-background-color: #16416e;
 }
 
-.tab-pane .tab:selected {
+.tab {
+    -fx-text-fill: #FFFFFF;
+    -fx-mark-color: white;
     -fx-background-color: #1e5a97;
 }
 
-.tab-pane .tab:hover {
-    -fx-background-color: #d1d7ff;
+.tab:hover {
+    -fx-background-color: #5fa3ed;    
+}
+
+.tab:selected {
+    -fx-background-color: #5591d2;
+}
+
+.tab:selected:hover {
+    -fx-background-color: #5591d2;
+}
+
+.tab-edited {
+    -fx-background-color: #0c9100;
+}
+
+.tab-edited:hover {
+    -fx-background-color: #12c202;
 }
 
 .stack-pane {
@@ -120,3 +150,25 @@
     -fx-background-color: red;
 }
 
+.progress-bar.complete {
+    -fx-background-color: grey;
+    -fx-border-color: #d1d7ff;
+    -fx-border-width: 2px;
+    -fx-border-radius: 5;
+}
+
+.progress-bar-complete .bar {
+    -fx-background-color: #0c9100;
+}
+
+.edit-scene {
+    -fx-background-color: #5591d2;
+}
+
+.history-scene {
+    -fx-background-color: #194c80;
+}
+
+.text-area .content {
+    -fx-background-color: #5fa3ed;
+}

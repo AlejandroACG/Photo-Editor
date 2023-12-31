@@ -61,25 +61,16 @@ public class AppController implements Initializable {
         // TODO Move Alerts to their own method and call them from there.
         this.maxTabs = Integer.parseInt(tfMaxTabs.getText());
 
-        ObservableList<String> choiceBoxOptions = FXCollections.observableArrayList(" ", "Grayscale", "Invert Colors", "Increase Brightness", "Blur");
-        cb1.setItems(choiceBoxOptions);
-        cb2.setItems(choiceBoxOptions);
-        cb3.setItems(choiceBoxOptions);
-        cb4.setItems(choiceBoxOptions);
+        ObservableList<String> choiceBoxOptions1 = FXCollections.observableArrayList("Grayscale", "Invert Colors", "Increase Brightness", "Blur");
+        ObservableList<String> choiceBoxOptions2 = FXCollections.observableArrayList(" ", "Grayscale", "Invert Colors", "Increase Brightness", "Blur");
+        cb1.setItems(choiceBoxOptions1);
+        cb2.setItems(choiceBoxOptions2);
+        cb3.setItems(choiceBoxOptions2);
+        cb4.setItems(choiceBoxOptions2);
 
-        cb2.setDisable(true);
+        cb1.setValue(cb1.getItems().get(0));
         cb3.setDisable(true);
         cb4.setDisable(true);
-
-        cb1.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (" ".equals(newValue) || newValue == null) {
-                cb1.setValue(null);
-                cb2.setValue(null);
-                cb2.setDisable(true);
-            } else {
-                cb2.setDisable(false);
-            }
-        });
 
         cb2.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (" ".equals(newValue) || newValue == null) {
@@ -112,19 +103,10 @@ public class AppController implements Initializable {
         File sourceFile = new File(originPath);
         File destinationDirectory = new File(tfDestination.getText());
 
-        if (cb1.getValue() == null) {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Error");
-            alert.setHeaderText("No Filter Selected");
-            alert.setContentText("Please select at least one filter.");
-            alert.showAndWait();
-            return;
-        }
-
         if (originPath.isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Error");
-            alert.setHeaderText("No Valid Path to File(s)");
+            alert.setHeaderText("No Valid Path to Source File(s)");
             alert.setContentText("Please select a valid file or directory to edit.");
             alert.showAndWait();
             return;
@@ -147,18 +129,7 @@ public class AppController implements Initializable {
 
         if (isImage(sourceFile)) {
             if (tpEdits.getTabs().size() < maxTabs) {
-                try {
-                    FXMLLoader loader = new FXMLLoader(getClass().getResource("tabpane.fxml"));
-                    loader.setController(new EditController(sourceFile, destinationDirectory, selectedFilters));
-                    // TODO Customize tab names or take them out entirely.
-                    tpEdits.getTabs().add(new Tab("Tab Name", loader.load()));
-                } catch (IOException e) {
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("Error");
-                    alert.setHeaderText("Error opening tab");
-                    alert.setContentText("New tab couldn't be opened: " + e.getMessage());
-                    alert.showAndWait();
-                }
+                createTab(sourceFile, destinationDirectory, selectedFilters);
             } else {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("Error");
@@ -171,19 +142,7 @@ public class AppController implements Initializable {
             if (filesInDirectory != null) {
                 if (tpEdits.getTabs().size() + filesInDirectory.length <= maxTabs) {
                     for (File file : filesInDirectory) {
-                        try {
-                            FXMLLoader loader = new FXMLLoader(getClass().getResource("tabpane.fxml"));
-                            EditController editController = new EditController(file, destinationDirectory, selectedFilters);
-                            loader.setController(editController);
-                            // TODO Customize tab names or take them out entirely.
-                            tpEdits.getTabs().add(new Tab("Tab Name", loader.load()));
-                        } catch (IOException e) {
-                            Alert alert = new Alert(Alert.AlertType.ERROR);
-                            alert.setTitle("Error");
-                            alert.setHeaderText("Error opening tab");
-                            alert.setContentText("New tab couldn't be opened: " + e.getMessage());
-                            alert.showAndWait();
-                        }
+                        createTab(file, destinationDirectory, selectedFilters);
                     }
                 } else {
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -290,6 +249,25 @@ public class AppController implements Initializable {
             }
         } else {
             // TODO Create "Not a Valid Number" Alert.
+        }
+    }
+
+    private void createTab(File sourceFile, File destinationDirectory, ArrayList<String> selectedFilters) {
+        try {
+            // TODO Customize tab names or take them out entirely.
+            Tab newTab = new Tab("Tab Name");
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("edit.fxml"));
+            loader.setController(new EditController(sourceFile, destinationDirectory, selectedFilters, newTab));
+            newTab.setContent(loader.load());
+            tpEdits.getTabs().add(newTab);
+        } catch (IOException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Error opening tab");
+            alert.setContentText("New tab couldn't be opened: " + e.getMessage());
+            alert.showAndWait();
+            e.printStackTrace();
+
         }
     }
 }
