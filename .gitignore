@@ -3,6 +3,9 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+History.txt
+TODO.txt
+
 ### IntelliJ IDEA ###
 .idea/modules.xml
 .idea/jarRepositories.xml

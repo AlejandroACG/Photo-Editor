@@ -1,0 +1,174 @@
+.root {
+    -fx-font-size: 17px;
+    -fx-font-family: "Arial";
+    -fx-font-weight: bold;
+    -fx-background-color: #3078c6;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+{
+    -fx-text-fill: #FFFFFF;
+}
+
+.text-field {
+    -fx-prompt-text-fill: #d4e8ff;
+    -fx-text-fill: white;
+    -fx-background-color: #5591d2;
+    -fx-border-color: #d1d7ff;
+    -fx-border-width: 2;
+    -fx-border-radius: 5;
+}
+
+.button {
+    -fx-background-color: #3078c6;
+    -fx-border-color: #d1d7ff;
+    -fx-border-width: 2;
+    -fx-border-radius: 15;
+    -fx-background-radius: 15;
+    -fx-padding: 8 12;
+}
+
+.button-undo-redo {
+    -fx-font-size: 28px;
+    -fx-padding: 1px;
+}
+
+.button:hover {
+    -fx-background-color: #5591d2;
+}
+
+.button:pressed {
+    -fx-background-color: #1e5a97;
+}
+
+.browse-button {
+    -fx-text-fill: #fcba03;
+}
+
+.choice-box {
+    -fx-background-color: #3078c6;
+    -fx-mark-color: white;
+    -fx-border-color: #d1d7ff;
+    -fx-border-width: 2;
+    -fx-border-radius: 5;
+}
+
+.choice-box .context-menu {
+    -fx-background-color: #1e5a97;
+}
+
+
+.choice-box .label {
+    -fx-font-weight: bold;
+}
+
+.choice-box .button {
+    -fx-background-radius: 15;
+    -fx-padding: 8 12;
+}
+
+.choice-box:hover {
+    -fx-background-color: #5591d2;
+}
+
+.choice-box:showing {
+    -fx-background-color: #194c80;
+}
+
+.choice-box:pressed {
+    -fx-background-color: #1e5a97;
+}
+
+.choice-box .menu {
+    -fx-text-fill: white;
+    -fx-background-color: #1e5a97;
+}
+
+.choice-box .menu-item:focused {
+    -fx-background-color: #5591d2;
+}
+
+.tab-pane {
+    -fx-border-color: #d1d7ff;
+    -fx-background-color: #5591d2;
+    -fx-border-width: 4;
+    -fx-border-style: solid;
+    -fx-border-insets: -1;
+    -fx-border-radius: 5; 
+}
+
+.tab-pane .context-menu {
+    -fx-background-color: #1e5a97;
+    -fx-mark-color: white;
+}
+
+.tab-header-background {
+    -fx-background-color: #16416e;
+}
+
+.tab {
+    -fx-text-fill: #FFFFFF;
+    -fx-mark-color: white;
+    -fx-background-color: #1e5a97;
+}
+
+.tab:hover {
+    -fx-background-color: #5fa3ed;    
+}
+
+.tab:selected {
+    -fx-background-color: #5591d2;
+}
+
+.tab:selected:hover {
+    -fx-background-color: #5591d2;
+}
+
+.tab-edited {
+    -fx-background-color: #0c9100;
+}
+
+.tab-edited:hover {
+    -fx-background-color: #12c202;
+}
+
+.stack-pane {
+    -fx-border-color: #d1d7ff;
+    -fx-border-width: 2px;
+    -fx-border-radius: 5;
+}
+
+.progress-bar {
+    -fx-background-color: grey;
+    -fx-border-color: #d1d7ff;
+    -fx-border-width: 2px;
+    -fx-border-radius: 5;
+}
+
+.progress-bar .bar {
+    -fx-background-color: red;
+}
+
+.progress-bar.complete {
+    -fx-background-color: grey;
+    -fx-border-color: #d1d7ff;
+    -fx-border-width: 2px;
+    -fx-border-radius: 5;
+}
+
+.progress-bar-complete .bar {
+    -fx-background-color: #0c9100;
+}
+
+.edit-scene {
+    -fx-background-color: #5591d2;
+}
+
+.history-scene {
+    -fx-background-color: #194c80;
+}
+
+.text-area .content {
+    -fx-background-color: #5fa3ed;
+}
