@@ -3,6 +3,7 @@ import com.svalero.editor.filters.BlurFilter;
 import com.svalero.editor.filters.GrayscaleFilter;
 import com.svalero.editor.filters.IncreaseBrightnessFilter;
 import com.svalero.editor.filters.InvertColorsFilter;
+import com.svalero.editor.utils.Alerts;
 import com.svalero.editor.utils.Utils;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -22,7 +23,7 @@ import static com.svalero.editor.utils.Constants.SLEEP_TIME;
 
 public class EditTask extends Task<ArrayList<BufferedImage>> {
     private final ArrayList<String> selectedFilters;
-    private ArrayList<BufferedImage> imageVersions = new ArrayList<>();
+    private final ArrayList<BufferedImage> imageVersions;
     private Integer imageVersionsPosition;
     private final File historyFile = new File("History.txt");
     private final StackPane spEditedContainer;
@@ -53,16 +54,8 @@ public class EditTask extends Task<ArrayList<BufferedImage>> {
 
     @Override
     protected ArrayList<BufferedImage> call() throws InterruptedException {
-        if (!historyFile.exists()) {
-            try {
-                historyFile.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
+        Utils.historyFileExists(historyFile);
         updateMessage("Applying Filters... 0%");
-        // TODO Try to code % again.
 
         if (selectedFilters != null) {
             String selectedFiltersString = "";
@@ -82,9 +75,10 @@ public class EditTask extends Task<ArrayList<BufferedImage>> {
             LocalDateTime now = LocalDateTime.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             String formattedDateTime = now.format(formatter);
-            try (FileWriter writer = new FileWriter("History.txt", true)) {
+            try (FileWriter writer = new FileWriter(historyFile, true)) {
                 writer.write(formattedDateTime + ": " + sourceName + selectedFiltersString + "\n");
             } catch (IOException e) {
+                Alerts.errorWritingHistory();
                 e.printStackTrace();
             }
         } else {
@@ -95,9 +89,10 @@ public class EditTask extends Task<ArrayList<BufferedImage>> {
             LocalDateTime now = LocalDateTime.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             String formattedDateTime = now.format(formatter);
-            try (FileWriter writer = new FileWriter("History.txt", true)) {
+            try (FileWriter writer = new FileWriter(historyFile, true)) {
                 writer.write(formattedDateTime + ": " + sourceName + " -> " + filter + "\n");
             } catch (IOException e) {
+                Alerts.errorWritingHistory();
                 e.printStackTrace();
             }
         }

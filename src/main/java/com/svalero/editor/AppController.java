@@ -1,5 +1,6 @@
 package com.svalero.editor;
 import static com.svalero.editor.utils.Utils.isImage;
+import com.svalero.editor.utils.Alerts;
 import com.svalero.editor.utils.Utils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -19,9 +20,6 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class AppController implements Initializable {
-    // TODO Add runLater to every place needed
-    // TODO If default save path doesn't exist, create it
-    // TODO Some catch hace Alerts but no proper depuration
     private int maxTabs;
     @FXML
     private TextField tfDestination;
@@ -42,9 +40,9 @@ public class AppController implements Initializable {
     @FXML
     private ChoiceBox<String> cb4;
     @FXML
-    private TextField tfOrigin;
+    private TextField tfSource;
     @FXML
-    private Button btnBrowseOrigin;
+    private Button btnBrowseSource;
     @FXML
     private Button btnBrowseDestination;
     @FXML
@@ -56,10 +54,8 @@ public class AppController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // TODO Add X buttons.
-        // TODO Add "No History" Alert when trying to view it but the file has been deleted.
-        // TODO Move Alerts to their own method and call them from there.
-        this.maxTabs = Integer.parseInt(tfMaxTabs.getText());
+        maxTabs = Integer.parseInt(tfMaxTabs.getText());
+        Utils.resultsDirectoryExists();
 
         ObservableList<String> choiceBoxOptions1 = FXCollections.observableArrayList("Grayscale", "Invert Colors", "Increase Brightness", "Blur");
         ObservableList<String> choiceBoxOptions2 = FXCollections.observableArrayList(" ", "Grayscale", "Invert Colors", "Increase Brightness", "Blur");
@@ -99,25 +95,11 @@ public class AppController implements Initializable {
 
     @FXML
     private void launchEdit(ActionEvent event) {
-        String originPath = tfOrigin.getText();
-        File sourceFile = new File(originPath);
+        File sourceFile = new File (tfSource.getText());
         File destinationDirectory = new File(tfDestination.getText());
 
-        if (originPath.isEmpty()) {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Error");
-            alert.setHeaderText("No Valid Path to Source File(s)");
-            alert.setContentText("Please select a valid file or directory to edit.");
-            alert.showAndWait();
-            return;
-        }
-
         if (!destinationDirectory.exists() || !destinationDirectory.isDirectory()) {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Error");
-            alert.setHeaderText("No Valid Destination Directory");
-            alert.setContentText("Please select a valid directory to save the edits.");
-            alert.showAndWait();
+            Alerts.invalidDestinationPath();
             return;
         }
 
@@ -131,11 +113,7 @@ public class AppController implements Initializable {
             if (tpEdits.getTabs().size() < maxTabs) {
                 createTab(sourceFile, destinationDirectory, selectedFilters);
             } else {
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Error");
-                alert.setHeaderText("Too Many Tabs Open");
-                alert.setContentText("Close some tabs or set a bigger maximum number of processes.");
-                alert.showAndWait();
+                Alerts.tooManyTabs();
             }
         } else if (sourceFile.isDirectory()) {
             File[] filesInDirectory = sourceFile.listFiles(Utils::isImage);
@@ -145,17 +123,13 @@ public class AppController implements Initializable {
                         createTab(file, destinationDirectory, selectedFilters);
                     }
                 } else {
-                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                    alert.setTitle("Error");
-                    alert.setHeaderText("Too Many Tabs Open");
-                    alert.setContentText("Close some tabs or set a bigger maximum number of processes.");
-                    alert.showAndWait();
+                    Alerts.tooManyTabs();
                 }
             } else {
-                // TODO Create "No Images in Directory" Alert
+                Alerts.emptySourceDirectory();
             }
         } else {
-            // TODO Create an Alert: the initial file was neither an image nor a folder.
+            Alerts.invalidSourcePath();
         }
     }
 
@@ -178,12 +152,13 @@ public class AppController implements Initializable {
 
             dialog.showAndWait();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            Alerts.errorOpeningHistory();
+            e.printStackTrace();
         }
     }
 
     @FXML
-    private void browseOrigin(ActionEvent event) {
+    private void browseSource(ActionEvent event) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Selection Required");
         alert.setHeaderText("Choose an Option");
@@ -196,11 +171,11 @@ public class AppController implements Initializable {
 
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent()) {
-            Stage stage = (Stage) this.btnBrowseOrigin.getScene().getWindow();
+            Stage stage = (Stage) btnBrowseSource.getScene().getWindow();
             if (result.get() == buttonTypeFile) {
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setTitle("Select File");
-                // TODO Configure initial directory. May need to create a variable with greater scope.
+                fileChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
 
                 FileChooser.ExtensionFilter filter = new FileChooser.ExtensionFilter("Image files", "*.png", "*.jpg", ".jpeg", "*.bmp");
                 fileChooser.getExtensionFilters().add(filter);
@@ -208,17 +183,16 @@ public class AppController implements Initializable {
                 File selectedFile = fileChooser.showOpenDialog(stage);
 
                 if (selectedFile != null && isImage(selectedFile)) {
-                    tfOrigin.setText(selectedFile.getAbsolutePath());
+                    tfSource.setText(selectedFile.getAbsolutePath());
                 }
-                // TODO Add failure message?
             } else if (result.get() == buttonTypeDirectory) {
                 DirectoryChooser directoryChooser = new DirectoryChooser();
                 directoryChooser.setTitle("Select Directory");
-                // TODO Configure initial directory. May need to create a variable with greater scope.
+                directoryChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
 
                 File selectedDirectory = directoryChooser.showDialog(stage);
                 if (selectedDirectory != null) {
-                    tfOrigin.setText(selectedDirectory.getAbsolutePath());
+                    tfSource.setText(selectedDirectory.getAbsolutePath());
                 }
             }
         }
@@ -228,9 +202,9 @@ public class AppController implements Initializable {
     private void browseDestination(ActionEvent event) {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Select Save Directory");
-        // TODO Configure initial directory. May need to create a variable with greater scope.
+        directoryChooser.setInitialDirectory(new File(System.getProperty("user.dir")));
 
-        Stage stage = (Stage) this.btnBrowseDestination.getScene().getWindow();
+        Stage stage = (Stage) btnBrowseDestination.getScene().getWindow();
         File selectedDirectory = directoryChooser.showDialog(stage);
 
         if (selectedDirectory != null) {
@@ -240,34 +214,23 @@ public class AppController implements Initializable {
 
     @FXML
     private void changeMaxTabs(ActionEvent event) {
-        if (tfMaxTabs.getText().matches("\\d+")) {
-            int maxTabsInt = Integer.parseInt(tfMaxTabs.getText());
-            if (maxTabsInt <= 99) {
-                maxTabs = maxTabsInt;
-            } else {
-                // TODO Create "No numbers above two digits" Alert.
-            }
+        if (tfMaxTabs.getText().matches("\\d+") && 1 <= maxTabs && maxTabs <= 99) {
+            maxTabs = Integer.parseInt(tfMaxTabs.getText());
         } else {
-            // TODO Create "Not a Valid Number" Alert.
+            Alerts.invalidTabNumber();
         }
     }
 
     private void createTab(File sourceFile, File destinationDirectory, ArrayList<String> selectedFilters) {
         try {
-            // TODO Customize tab names or take them out entirely.
             Tab newTab = new Tab(sourceFile.getName());
             FXMLLoader loader = new FXMLLoader(getClass().getResource("edit.fxml"));
             loader.setController(new EditController(sourceFile, destinationDirectory, selectedFilters, newTab));
             newTab.setContent(loader.load());
             tpEdits.getTabs().add(newTab);
         } catch (IOException e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Error");
-            alert.setHeaderText("Error opening tab");
-            alert.setContentText("New tab couldn't be opened: " + e.getMessage());
-            alert.showAndWait();
+            Alerts.errorOpeningTab();
             e.printStackTrace();
-
         }
     }
 }

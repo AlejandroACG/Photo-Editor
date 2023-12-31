@@ -1,5 +1,7 @@
 package com.svalero.editor;
 import com.svalero.editor.tasks.*;
+import com.svalero.editor.utils.Alerts;
+import com.svalero.editor.utils.Utils;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
@@ -30,6 +32,7 @@ public class EditController implements Initializable {
     private IntegerProperty imageVersionsPosition = new SimpleIntegerProperty(0);
     Alert alertOverwrite = new Alert(Alert.AlertType.CONFIRMATION);
     private final Tab myTab;
+    private final File historyFile = new File("History.txt");
     @FXML
     private ImageView ivInitialImage;
     @FXML
@@ -51,7 +54,6 @@ public class EditController implements Initializable {
     @FXML
     private Button btnSave;
 
-    // TODO Update History with new editions and specify if some of them are deleted.
     public EditController(File sourceFile, File destinationDirectory, ArrayList<String> selectedFilters, Tab myTab) throws IOException {
         this.imageVersions.add(ImageIO.read(sourceFile));
         this.sourceName = sourceFile.getName();
@@ -86,31 +88,34 @@ public class EditController implements Initializable {
             }
         });
 
-        this.ivInitialImage.setImage(SwingFXUtils.toFXImage(imageVersions.get(0), null));
+        ivInitialImage.setImage(SwingFXUtils.toFXImage(imageVersions.get(0), null));
 
-        // TODO Update Message with "something went wrong" if something goes wrong?
-        // TODO Delete all unneeded "this."
         try {
             EditTask editTask = new EditTask(imageVersions, selectedFilters,
                     spEditedContainer, ivEditedImage, sourceName);
+            editTask.setOnFailed(workerStateEvent -> {
+                Alerts.filtersFailure(sourceName);
+                myTab.getTabPane().getTabs().remove(myTab);
+            });
             editTask.setOnSucceeded(workerStateEvent -> {
                 imageVersions = editTask.getValue();
                 imageVersionsPosition.set(imageVersions.size() - 1);
                 ivEditedImage.setImage(SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition.get()), null));
                 spEditedContainer.setVisible(true);
-                enableButtons();
+
                 if (!myTab.isSelected()) {
                     myTab.getStyleClass().add("tab-edited");
                 }
+                Alerts.filtersSuccess(sourceName);
+                enableButtons();
             });
             pbProgress.progressProperty().bind(editTask.progressProperty());
             editTask.messageProperty().addListener((observable, oldValue, newValue) -> lblProgressStatus.setText(newValue));
             new Thread(editTask).start();
-        } catch (IOException e) {
-            // TODO Create Alert.
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        } catch (IOException | InterruptedException e) {
+            Alerts.filtersFailure(sourceName);
+            e.printStackTrace();
+            myTab.getTabPane().getTabs().remove(myTab);
         }
     }
 
@@ -130,9 +135,11 @@ public class EditController implements Initializable {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String formattedDateTime = now.format(formatter);
 
-        try (FileWriter writer = new FileWriter("History.txt", true)) {
+        Utils.historyFileExists(historyFile);
+        try (FileWriter writer = new FileWriter(historyFile, true)) {
             writer.write(formattedDateTime + ": " + sourceName + " -> " + filter +"\n");
         } catch (IOException e) {
+            Alerts.errorWritingHistory();
             e.printStackTrace();
         }
     }
@@ -162,17 +169,20 @@ public class EditController implements Initializable {
         try {
             ImageIO.write(imageVersions.get(imageVersionsPosition.get()), extension, saveFile);
         } catch (IOException e) {
-            // TODO Alert.
-            throw new RuntimeException(e);
+            Alerts.saveFailure(sourceName);
+            e.printStackTrace();
+            return;
         }
 
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String formattedDateTime = now.format(formatter);
 
-        try (FileWriter writer = new FileWriter("History.txt", true)) {
+        Utils.historyFileExists(historyFile);
+        try (FileWriter writer = new FileWriter(historyFile, true)) {
             writer.write(formattedDateTime + ": " + sourceName + " -> " + saveFile.getName() + "\n");
         } catch (IOException e) {
+            Alerts.errorWritingHistory();
             e.printStackTrace();
         }
     }
@@ -189,10 +199,12 @@ public class EditController implements Initializable {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
             String formattedDateTime = now.format(formatter);
 
-            try (FileWriter writer = new FileWriter("History.txt", true)) {
+            Utils.historyFileExists(historyFile);
+            try (FileWriter writer = new FileWriter(historyFile, true)) {
                 writer.write(formattedDateTime + ": " + sourceName +
                         " -> Undone edits: " + (imageVersions.size() - imageVersionsPosition.get() - 1) + "\n");
             } catch (IOException e) {
+                Alerts.errorWritingHistory();
                 e.printStackTrace();
             }
 
@@ -209,15 +221,23 @@ public class EditController implements Initializable {
 
         pbProgress.progressProperty().bind(editTask.progressProperty());
         editTask.messageProperty().addListener((observable, oldValue, newValue) -> lblProgressStatus.setText(newValue));
+        editTask.setOnFailed(workerStateEvent -> {
+            lblProgressStatus.setText("Filter couldn't be applied");
+            pbProgress.setProgress(0);
+            Alerts.filterFailure(sourceName, filter);
+            enableButtons();
+        });
         editTask.setOnSucceeded(workerStateEvent -> {
             imageVersions = editTask.getValue();
             imageVersionsPosition.set(imageVersions.size() - 1);
 
             ivEditedImage.setImage(SwingFXUtils.toFXImage(imageVersions.get(imageVersionsPosition.get()), null));
+
             if (!myTab.isSelected()) {
                 myTab.getStyleClass().add("tab-edited");
             }
 
+            Alerts.filterSuccess(sourceName, filter);
             enableButtons();
         });
         pbProgress.progressProperty().bind(editTask.progressProperty());

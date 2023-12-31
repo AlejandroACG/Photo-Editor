@@ -14,4 +14,3 @@ public class InvertColorsFilter {
         return new Color(invertedRed, invertedGreen, invertedBlue);
     }
 }
-

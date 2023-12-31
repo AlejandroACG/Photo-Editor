@@ -25,7 +25,7 @@ public class HistoryController implements Initializable {
             }
         } catch (FileNotFoundException e) {
             contentBuilder.append("File couldn't be read.");
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
 
         taHistory.setText(contentBuilder.toString());
@@ -41,7 +41,7 @@ public class HistoryController implements Initializable {
             }
         } catch (FileNotFoundException e) {
             contentBuilder.append("File couldn't be read.");
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
 
         taHistory.setText(contentBuilder.toString());
